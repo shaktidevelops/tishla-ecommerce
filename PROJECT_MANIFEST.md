@@ -34,3 +34,7 @@
 ## Legacy
 
 `legacy_reference/` retains the supplied Apps Script, HTML/CSS, logo, banner and favicon for migration reference.
+
+## Windows launcher policy
+
+Canonical developer entry points are CMD files to avoid PowerShell signing/execution-policy blockers. PowerShell scripts remain optional maintenance utilities.

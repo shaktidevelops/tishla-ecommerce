@@ -1,3 +1,5 @@
+# Tishla Commerce Platform v3
+
 # Tishla Commerce Platform v2
 
 A complete multi-page fashion e-commerce foundation for Tishla by Purnika Sales.
@@ -34,4 +36,13 @@ The database is divided into `auth`, `store`, `cms`, and `audit` schemas. The st
 
 ## Single-command Windows development
 
-From `E:\\Shakti\\GitHub\\tishla-ecommerce`, either double-click `START_TISHLA_DEV.bat` or run `START_TISHLA_DEV.ps1` from PowerShell. This prepares dependencies, initializes PostgreSQL, starts the FastAPI API and Next.js storefront, and opens `http://localhost:3000`.
+From `E:\\Shakti\\GitHub\\tishla-ecommerce`, either double-click `START_TISHLA_DEV.cmd` or run `START_TISHLA_DEV.cmd` from PowerShell. This prepares dependencies, initializes PostgreSQL, starts the FastAPI API and Next.js storefront, and opens `http://localhost:3000`.
+
+
+## Current frontend iteration
+See `FRONTEND_UPGRADE_V3.md` and open `FRONTEND_PREVIEW.html` for the latest visual checkpoint before API wiring.
+
+
+## Windows quick launch
+
+Use `START_TISHLA_DEV.cmd` for the full stack. Use `START_TISHLA_FRONTEND.cmd` for a frontend-only visual preview without PostgreSQL/FastAPI.

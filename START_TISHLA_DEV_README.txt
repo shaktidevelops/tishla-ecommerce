@@ -1,18 +1,15 @@
-TISHLA DEVELOPMENT START
-=========================
+TISHLA WINDOWS STARTUP
 
-Preferred:
-  Double-click START_TISHLA_DEV.bat
+Normal development (no PowerShell required):
+  START_TISHLA_DEV.cmd
 
-Or PowerShell:
-  Set-ExecutionPolicy -Scope Process Bypass -Force
-  .\START_TISHLA_DEV.ps1
+Frontend-only visual preview (does not require FastAPI/PostgreSQL):
+  START_TISHLA_FRONTEND.cmd
 
-The launcher:
-  1. Ensures Python environment and dependencies
-  2. Ensures Node dependencies
-  3. Initializes/updates PostgreSQL schema and seed data
-  4. Starts FastAPI and Next.js in separate PowerShell windows
-  5. Opens http://localhost:3000
+Configure Git identity:
+  SET_GIT_IDENTITY.cmd
 
-Do not close the API/web windows while developing.
+Push to GitHub after configuring origin:
+  GIT_PUSH_WINDOWS.cmd "Your commit message"
+
+The .ps1 files remain available for optional maintenance tasks, but they are NOT required for normal Tishla development.

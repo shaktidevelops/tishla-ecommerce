@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 import { SiteChrome } from "@/components/site-chrome";
 import { CartProvider } from "@/components/cart-provider";
 

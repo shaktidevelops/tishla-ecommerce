@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from typing import Any
 
 from .deps import require_role
 from ..core.config import get_settings
@@ -38,6 +39,27 @@ class ProductPayload(BaseModel):
     status: str = "active"
 
 
+class ProductPatch(BaseModel):
+    sku: str | None = Field(default=None, min_length=2, max_length=80)
+    slug: str | None = Field(default=None, min_length=2, max_length=120)
+    name: str | None = Field(default=None, min_length=2, max_length=200)
+    fabric: str | None = None
+    product_type: str | None = None
+    shoot_type: str | None = None
+    base_price: float | None = Field(default=None, ge=0)
+    gst_rate: float | None = Field(default=None, ge=0, le=100)
+    description: str | None = None
+    short_description: str | None = None
+    status: str | None = None
+    featured: bool | None = None
+    min_order_qty: int | None = Field(default=None, ge=1)
+    department_id: str | None = None
+
+
+class SettingPayload(BaseModel):
+    value: dict[str, Any]
+
+
 class StatusPayload(BaseModel):
     status: str
     note: str | None = Field(default=None, max_length=1000)
@@ -48,6 +70,113 @@ class InventoryAdjustment(BaseModel):
     quantity: int
     movement_type: str = "adjustment"
     reason: str = Field(min_length=2, max_length=500)
+
+
+
+
+@router.get("/products")
+def admin_products(
+    q: str | None = None,
+    status: str | None = None,
+    _user: dict = Depends(require_role("catalogue_manager")),
+):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            conditions = ["1=1"]
+            params: list[Any] = []
+            if q:
+                conditions.append("(p.name ILIKE %s OR p.sku ILIKE %s OR COALESCE(p.fabric, '') ILIKE %s)")
+                params.extend([f"%{q}%", f"%{q}%", f"%{q}%"])
+            if status:
+                conditions.append("p.status = %s::store.product_status")
+                params.append(status)
+            cur.execute(
+                f"""
+                SELECT p.id, p.sku, p.slug, p.name, p.fabric, p.product_type, p.shoot_type,
+                       p.base_price, p.gst_rate, p.status, p.featured, p.min_order_qty,
+                       p.department_id, p.created_at, p.updated_at,
+                       COUNT(DISTINCT v.id)::int AS variant_count,
+                       COUNT(DISTINCT pi.id)::int AS image_count
+                FROM store.products p
+                LEFT JOIN store.product_variants v ON v.product_id = p.id
+                LEFT JOIN store.product_images pi ON pi.product_id = p.id
+                WHERE {' AND '.join(conditions)}
+                GROUP BY p.id
+                ORDER BY p.updated_at DESC, p.name ASC
+                LIMIT 200
+                """,
+                params,
+            )
+            return {"success": True, "data": cur.fetchall()}
+
+
+@router.patch("/products/{product_id}")
+def update_product(
+    product_id: str,
+    payload: ProductPatch,
+    _user: dict = Depends(require_role("catalogue_manager")),
+):
+    fields = payload.model_dump(exclude_unset=True)
+    if not fields:
+        raise HTTPException(status_code=400, detail="No fields supplied.")
+
+    if "status" in fields and fields["status"] not in {"draft", "active", "archived"}:
+        raise HTTPException(status_code=400, detail="Invalid product status.")
+
+    allowed = {
+        "sku", "slug", "name", "fabric", "product_type", "shoot_type",
+        "base_price", "gst_rate", "description", "short_description",
+        "status", "featured", "min_order_qty", "department_id"
+    }
+    fields = {k: v for k, v in fields.items() if k in allowed}
+    assignments = []
+    params: list[Any] = []
+    for key, value in fields.items():
+        if key == "status":
+            assignments.append("status=%s::store.product_status")
+        else:
+            assignments.append(f"{key}=%s")
+        params.append(value)
+    params.append(product_id)
+
+    with get_connection() as conn:
+        with conn.transaction():
+            with conn.cursor() as cur:
+                cur.execute(
+                    f"UPDATE store.products SET {', '.join(assignments)} WHERE id=%s RETURNING id,sku,slug,name,status,updated_at",
+                    params,
+                )
+                result = cur.fetchone()
+                if not result:
+                    raise HTTPException(status_code=404, detail="Product not found.")
+    return {"success": True, "data": result}
+
+
+@router.get("/settings")
+def get_settings_admin(_user: dict = Depends(require_role("admin"))):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT key, value, updated_at FROM store.settings ORDER BY key")
+            return {"success": True, "data": cur.fetchall()}
+
+
+@router.put("/settings/{key}")
+def save_setting(key: str, payload: SettingPayload, _user: dict = Depends(require_role("admin"))):
+    if not key or len(key) > 80 or not key.replace("_", "").replace("-", "").isalnum():
+        raise HTTPException(status_code=400, detail="Invalid settings key.")
+    with get_connection() as conn:
+        with conn.transaction():
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO store.settings(key,value,updated_at)
+                    VALUES(%s,%s::jsonb,now())
+                    ON CONFLICT(key) DO UPDATE SET value=EXCLUDED.value,updated_at=now()
+                    RETURNING key,value,updated_at
+                    """,
+                    (key, __import__("json").dumps(payload.value)),
+                )
+                return {"success": True, "data": cur.fetchone()}
 
 
 @router.get("/dashboard")
