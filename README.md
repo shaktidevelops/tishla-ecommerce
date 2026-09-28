@@ -1,37 +1,23 @@
-# Tishla Commerce Platform v2
+# Tishla Commerce Platform
 
-A complete multi-page fashion e-commerce foundation for Tishla by Purnika Sales.
+Tishla by Purnika Sales — English-only luxury Indian fashion storefront and administration platform.
 
-## Stack
+## Development
 
-- Next.js 16.3.3
-- React 19.3
-- TypeScript 5.9
-- Lucide React 1.48
-- Python 3.12–3.14
-- FastAPI 0.141.1
-- Psycopg 3.3.6
-- PostgreSQL 18-compatible SQL
-- Windows-native development first; Docker/VPS deployment remains optional
+From the project root on Windows:
 
-Next.js 16.3.3 is pinned from the current active LTS line; React 19.3 is the current stable React release line. PostgreSQL 18 is the current supported major release. See `docs/SOURCES.md` for references.
+```powershell
+git pull origin main
+.\START_TISHLA_DEV.bat
+```
 
-## Start on Windows
+The launcher starts the FastAPI backend and Next.js storefront, waits for both services, and opens the storefront. The Admin Control Room is available at `/admin`.
 
-1. Copy the project to `E:\Shakti\GitHub\tishla-ecommerce`.
-2. Keep the root `.env` supplied with the package for local development, then rotate credentials before production.
-3. Open a new PowerShell and run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force`.
-4. Run `.\START_HERE_WINDOWS.ps1` (PowerShell path syntax: `.\START_HERE_WINDOWS.ps1`).
-5. After setup, run `.\scripts\run-all-windows.ps1`.
+## Architecture
 
-Then open `http://localhost:3000`.
+- Next.js 16 + React 19 storefront and Admin UI
+- FastAPI backend
+- PostgreSQL database
+- Same-origin `/api/*` browser requests proxied by Next.js to FastAPI in local development
 
-## Database
-
-Use `database/TISHLA_DATABASE.sql` for a consolidated install. Sequential migrations are in `database/migrations`.
-
-The database is divided into `auth`, `store`, `cms`, and `audit` schemas. The store covers catalogue, departments, collections, variants, pricing, inventory, customers, wholesale, carts, orders, payments, shipping, returns, coupons, enquiries, reviews and SEO. CMS covers pages, banners, homepage sections, navigation, lookbooks, blog posts and FAQs.
-
-## Single-command Windows development
-
-From `E:\\Shakti\\GitHub\\tishla-ecommerce`, either double-click `START_TISHLA_DEV.bat` or run `START_TISHLA_DEV.ps1` from PowerShell. This prepares dependencies, initializes PostgreSQL, starts the FastAPI API and Next.js storefront, and opens `http://localhost:3000`.
+Do not commit real `.env` files or production secrets.
