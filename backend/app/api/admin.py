@@ -188,11 +188,113 @@ def dashboard(_user: dict = Depends(require_role("admin"))):
 
 
 @router.get("/orders")
-def recent_orders(_user: dict = Depends(require_role("order_manager"))):
+def recent_orders(
+    q: str | None = None,
+    status: str | None = None,
+    _user: dict = Depends(require_role("order_manager")),
+):
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT * FROM store.v_order_totals ORDER BY created_at DESC LIMIT 100")
+            conditions = ["1=1"]
+            params: list[Any] = []
+            if q:
+                conditions.append(
+                    "(order_number ILIKE %s OR customer_name ILIKE %s OR customer_phone ILIKE %s OR customer_email::text ILIKE %s)"
+                )
+                term = f"%{q}%"
+                params.extend([term, term, term, term])
+            if status:
+                valid_statuses = {
+                    "pending_payment", "payment_failed", "paid", "confirmed", "processing",
+                    "packed", "shipped", "delivered", "cancelled", "refunded", "returned"
+                }
+                if status not in valid_statuses:
+                    raise HTTPException(status_code=400, detail="Invalid order status.")
+                conditions.append("status = %s::store.order_status")
+                params.append(status)
+            where_sql = " AND ".join(conditions)
+            cur.execute(
+                "SELECT * FROM store.v_order_totals WHERE " + where_sql + " ORDER BY created_at DESC LIMIT 200",
+                params,
+            )
             return {"success": True, "data": cur.fetchall()}
+
+
+@router.get("/orders/{order_id}")
+def order_detail(
+    order_id: str,
+    _user: dict = Depends(require_role("order_manager")),
+):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id,order_number,status,currency,subtotal,discount_total,taxable_total,
+                       tax_total,shipping_total,grand_total,customer_id,customer_name,
+                       customer_email,customer_phone,billing_address,shipping_address,
+                       notes,source,payment_method,external_payment_reference,
+                       external_checkout_reference,placed_at,confirmed_at,cancelled_at,
+                       delivered_at,created_at,updated_at
+                FROM store.orders
+                WHERE id=%s
+                """,
+                (order_id,),
+            )
+            order = cur.fetchone()
+            if not order:
+                raise HTTPException(status_code=404, detail="Order not found.")
+
+            cur.execute(
+                """
+                SELECT id,sku,product_name,variant_name,quantity,unit_price,
+                       tax_rate,tax_total,line_total
+                FROM store.order_items
+                WHERE order_id=%s
+                ORDER BY created_at ASC
+                """,
+                (order_id,),
+            )
+            items = cur.fetchall()
+
+            cur.execute(
+                """
+                SELECT id,provider,amount,currency,status,method,paid_at,created_at
+                FROM store.payments
+                WHERE order_id=%s
+                ORDER BY created_at DESC
+                LIMIT 10
+                """,
+                (order_id,),
+            )
+            payments = cur.fetchall()
+
+            cur.execute(
+                """
+                SELECT id,provider,tracking_number,status,shipping_method
+                FROM store.shipments
+                WHERE order_id=%s
+                ORDER BY created_at DESC
+                LIMIT 10
+                """,
+                (order_id,),
+            )
+            shipments = cur.fetchall()
+
+            cur.execute(
+                """
+                SELECT h.id,h.from_status,h.to_status,h.note,h.created_at,
+                       COALESCE(u.full_name,u.email,'System') AS changed_by
+                FROM store.order_status_history h
+                LEFT JOIN auth.users u ON u.id=h.changed_by
+                WHERE h.order_id=%s
+                ORDER BY h.created_at DESC
+                LIMIT 50
+                """,
+                (order_id,),
+            )
+            history = cur.fetchall()
+
+    return {"success": True, "data": {"order": order, "items": items, "payments": payments, "shipments": shipments, "history": history}}
 
 
 @router.patch("/orders/{order_id}/status")
