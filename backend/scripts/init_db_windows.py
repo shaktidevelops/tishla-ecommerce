@@ -1,52 +1,82 @@
 from pathlib import Path
-import os
 import sys
+
 import psycopg
-from dotenv import load_dotenv
+from psycopg import sql
+from psycopg.conninfo import conninfo_to_dict
 
 ROOT = Path(__file__).resolve().parents[2]
-load_dotenv(ROOT / ".env")
+DATABASE_FILE = ROOT / "database" / "TISHLA_DATABASE.sql"
 
-DB_NAME = os.getenv("POSTGRES_DB", "tishla")
-DB_USER = os.getenv("POSTGRES_USER", "postgres")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
-DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
-DB_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
+sys.path.insert(0, str(ROOT / "backend"))
+from app.core.config import get_settings
 
 
-def connect(dbname: str):
-    return psycopg.connect(host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASSWORD, dbname=dbname, autocommit=True)
+def ensure_database(database_url: str) -> str:
+    """Ensure the target database exists and return its database name."""
+    params = conninfo_to_dict(database_url)
+    dbname = params.get("dbname") or "tishla"
+    admin_params = dict(params)
+    admin_params["dbname"] = "postgres"
 
+    with psycopg.connect(**admin_params, autocommit=True) as conn:
+        exists = conn.execute(
+            "SELECT 1 FROM pg_database WHERE datname=%s",
+            (dbname,),
+        ).fetchone()
 
-def ensure_database():
-    with connect("postgres") as conn:
-        exists = conn.execute("SELECT 1 FROM pg_database WHERE datname=%s", (DB_NAME,)).fetchone()
         if not exists:
-            conn.execute(f'CREATE DATABASE "{DB_NAME.replace(chr(34), chr(34)+chr(34))}"')
-            print(f"Created database: {DB_NAME}")
+            conn.execute(
+                sql.SQL("CREATE DATABASE {}").format(sql.Identifier(dbname))
+            )
+            print(f"Created database: {dbname}")
         else:
-            print(f"Database already exists: {DB_NAME}")
+            print(f"Database already exists: {dbname}")
+
+    return dbname
 
 
-def apply_sql():
-    files = [
-        ROOT / "database" / "migrations" / "001_initial.sql",
-        ROOT / "database" / "migrations" / "002_catalogue_import.sql",
-        ROOT / "database" / "migrations" / "003_storefront_restructure.sql",
-        ROOT / "database" / "migrations" / "004_seed_storefront.sql",
-        ROOT / "database" / "migrations" / "005_demo_catalogue.sql",
-    ]
-    with connect(DB_NAME) as conn:
-        for file in files:
-            print(f"Applying {file.name} ...")
-            sql = file.read_text(encoding="utf-8")
-            conn.execute(sql)
+def apply_database(database_url: str) -> None:
+    if not DATABASE_FILE.exists():
+        raise FileNotFoundError(f"Database file not found: {DATABASE_FILE}")
+
+    print(f"Applying {DATABASE_FILE.name} ...")
+    database_sql = DATABASE_FILE.read_text(encoding="utf-8")
+
+    params = conninfo_to_dict(database_url)
+    params["dbname"] = ensure_database(database_url)
+
+    # TISHLA_DATABASE.sql contains its own BEGIN/COMMIT.
+    with psycopg.connect(**params, autocommit=True) as conn:
+        conn.execute(database_sql)
+
+        checks = {
+            "auth.users": conn.execute(
+                "SELECT to_regclass('auth.users')"
+            ).fetchone()[0],
+            "auth.roles": conn.execute(
+                "SELECT to_regclass('auth.roles')"
+            ).fetchone()[0],
+            "store.products": conn.execute(
+                "SELECT to_regclass('store.products')"
+            ).fetchone()[0],
+        }
+
+    missing = [name for name, value in checks.items() if value is None]
+    if missing:
+        raise RuntimeError(
+            "Database initialization finished but required tables are missing: "
+            + ", ".join(missing)
+        )
+
     print("Database initialization completed successfully.")
+    print("Required schemas/tables verified: auth.users, auth.roles, store.products.")
+
 
 if __name__ == "__main__":
     try:
-        ensure_database()
-        apply_sql()
+        settings = get_settings()
+        apply_database(settings.database_url)
     except Exception as exc:
         print(f"DATABASE INITIALIZATION FAILED: {exc}", file=sys.stderr)
         raise
