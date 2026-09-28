@@ -1,0 +1,1 @@
+export default function Orders(){return <main className="container page-pad"><div className="empty-state"><span className="eyebrow">MY TISHLA</span><h1>Orders</h1><p>Sign in to view order history and current shipment status.</p></div></main>}

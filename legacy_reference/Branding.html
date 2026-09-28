@@ -1,0 +1,242 @@
+<style>
+  /* =========================================================
+     SHAKTI DEVELOPS — INTERACTIVE SIGNATURE & HOVER CARD
+     ========================================================= */
+  .sd-wrapper {
+    position: relative;
+    display: inline-block;
+    z-index: 999;
+  }
+
+  #signatureContainer.sd-brand-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 14px;
+    background: rgba(255, 253, 248, 0.98);
+    border: 1.2px solid rgba(212, 175, 55, 0.7);
+    border-radius: 999px;
+    box-shadow: 0 4px 14px rgba(54, 2, 14, 0.22);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #signatureContainer.sd-brand-container:hover {
+    transform: translateY(-1px) scale(1.02);
+    border-color: #D4AF37;
+    box-shadow: 0 6px 18px rgba(54, 2, 14, 0.35);
+  }
+
+  .sd-brand-signature {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+
+  .sd-logo-node { width: 34px; height: 20px; display: flex; align-items: center; }
+  .sd-logo-node svg { width: 100%; height: 100%; }
+
+  .sd-circuit-divider {
+    width: 1.5px;
+    height: 14px;
+    background: #D4AF37;
+    border-radius: 999px;
+  }
+
+  .sd-brand-text {
+    font-size: 8.5pt;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    display: flex;
+    gap: 4px;
+  }
+  .sd-shakti { color: #36020E; }
+  .sd-develops { color: #9B7018; }
+
+  /* HOVER CARD */
+  .sd-tooltip-popover {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(10px) scale(0.96);
+    width: 310px;
+    background: rgba(30, 1, 8, 0.98);
+    border: 1.5px solid #D4AF37;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65), 0 0 15px rgba(212, 175, 55, 0.25);
+    backdrop-filter: blur(14px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    color: #FFFDF9;
+    text-align: left;
+    z-index: 10000;
+  }
+
+  .sd-tooltip-popover::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 7px;
+    border-style: solid;
+    border-color: #D4AF37 transparent transparent transparent;
+  }
+
+  .sd-wrapper:hover .sd-tooltip-popover,
+  .sd-wrapper:focus-within .sd-tooltip-popover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  .sd-tooltip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+    padding-bottom: 6px;
+  }
+
+  .sd-tooltip-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #FDE49E;
+    letter-spacing: 0.8px;
+  }
+
+  .sd-status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    color: #6EE7B7;
+    font-weight: 700;
+  }
+  .sd-status-dot::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: #10B981;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #10B981;
+  }
+
+  .sd-tooltip-desc {
+    font-size: 11px;
+    color: #E2D7D9;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .sd-points-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sd-points-list li {
+    font-size: 10.5px;
+    color: #F5EAE1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sd-social-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .sd-social-link {
+    color: #FDEBB5;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+  }
+  .sd-social-link:hover { color: #fff; text-decoration: underline; }
+
+  .sd-ecommerce-badge {
+    margin-top: 8px;
+    background: linear-gradient(135deg, #9B7018, #D4AF37);
+    color: #22020A;
+    text-align: center;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+</style>
+
+<div class="sd-wrapper">
+  <div id="signatureContainer" class="sd-brand-container" tabindex="0">
+    <div class="sd-brand-signature">
+      <div class="sd-logo-node">
+        <svg viewBox="0 0 72 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="37" cy="8" r="5.8" fill="#FDE49E"/>
+          <path d="M37 0.8V3M29.7 2.7L31.5 4.5M44.3 2.7L42.5 4.5" stroke="#D4AF37" stroke-width="1"/>
+          <path d="M3 26L13 14L22 21L32 10L41 20L51 12L61 21L69 16L72 26H3Z" fill="#720926"/>
+          <path d="M32 10L35.4 14.7L41 20L36.3 18L32.6 15.6L28.8 13.3L32 10Z" fill="#FDEBB5"/>
+          <path d="M2 28L11 20L18 25L27 18L35 24L44 18L52 24L61 19L71 27V32H2V28Z" fill="#36020E"/>
+          <path d="M4 32C12 29.7 19 31.4 26 29.8C33 28.2 39 27.2 45 29C51 30.8 57 27.6 63 26.4" stroke="#D4AF37" stroke-width="1.8"/>
+        </svg>
+      </div>
+      <div class="sd-circuit-divider"></div>
+      <div class="sd-brand-text">
+        <span class="sd-shakti">SHAKTI</span>
+        <span class="sd-develops">DEVELOPS</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sd-tooltip-popover">
+    <div class="sd-tooltip-header">
+      <span class="sd-tooltip-title">SHAKTI DEVELOPS</span>
+      <span class="sd-status-dot">Online</span>
+    </div>
+    
+    <p class="sd-tooltip-desc">
+      Specializing in full web development, Apps Script backend workflows, and custom enterprise e-commerce systems.
+    </p>
+
+    <ul class="sd-points-list">
+      <li>⚡ Google Apps Script & Sheets Automation Systems</li>
+      <li>🛍️ 100% Custom E-Commerce Architecture Ready</li>
+      <li>🔄 Automated Drive Sync & Vision API Integration</li>
+      <li>📱 High-Performance Mobile Web Interfaces</li>
+    </ul>
+
+    <div class="sd-social-strip">
+      <a href="https://instagram.com/shaktidevelops" target="_blank" class="sd-social-link">
+        <span>📷</span> @shaktidevelops
+      </a>
+      <a href="mailto:shaktidevelops@gmail.com" class="sd-social-link">
+        <span>✉️</span> Email
+      </a>
+    </div>
+
+    <div class="sd-ecommerce-badge">
+      🚀 Custom E-Commerce Ready
+    </div>
+  </div>
+</div>

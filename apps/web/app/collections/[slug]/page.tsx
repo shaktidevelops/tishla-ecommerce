@@ -1,0 +1,4 @@
+import { notFound } from "next/navigation";
+import { ProductCard } from "@/components/product-card";
+import { collections, products } from "@/lib/data";
+export default async function CollectionPage({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const c=collections.find(x=>x.slug===slug);if(!c)notFound();const items=slug==='bestsellers'?products.filter(p=>p.rating>=4.8):slug==='party-edit'?products.filter(p=>p.badge==='Party Edit'||p.category==='Gowns'):products;return <main className="container page-pad"><div className="page-hero collection-hero"><span className="eyebrow">{c.kicker}</span><h1>{c.name}</h1><p>{c.description}</p></div><div className="toolbar"><span>{items.length} products</span><div><button>Filter</button><button>Sort: Featured</button></div></div><div className="product-grid">{items.map(p=><ProductCard product={p} key={p.slug}/>)}</div></main>}

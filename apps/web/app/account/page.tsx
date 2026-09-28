@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function Account(){return <main className="container page-pad"><div className="account-panel"><span className="eyebrow">MY TISHLA</span><h1>Account</h1><p>Sign in to view orders, saved addresses and your wishlist.</p><form><input type="email" placeholder="Email address"/><button className="button button-dark full">Continue</button></form><div className="account-links"><Link href="/account/orders">Orders</Link><Link href="/wishlist">Wishlist</Link><Link href="/track-order">Track order</Link></div></div></main>}
