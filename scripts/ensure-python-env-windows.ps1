@@ -11,11 +11,12 @@ function Find-Python {
     )
     foreach ($c in $candidates) {
         try {
-            $null = & $c.Command @c.Args --version 2>$null
+            $candidateArgs = @($c.Args)
+            $null = & $c.Command @candidateArgs --version 2>$null
             if ($LASTEXITCODE -eq 0) {
-                $ver = (& $c.Command @c.Args -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
+                $ver = (& $c.Command @candidateArgs -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
                 $parts = $ver.Split('.')
-                if ([int]$parts[0] -eq 3 -and [int]$parts[1] -ge 12 -and [int]$parts[1] -le 14) { return ,@($c.Command) + $c.Args }
+                if ([int]$parts[0] -eq 3 -and [int]$parts[1] -ge 12 -and [int]$parts[1] -le 14) { return ,@($c.Command) + $candidateArgs }
             }
         } catch {}
     }
