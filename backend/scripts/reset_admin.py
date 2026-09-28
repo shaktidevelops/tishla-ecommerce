@@ -1,6 +1,8 @@
 import os
 import sys
 
+import psycopg
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.core.config import get_settings
@@ -24,10 +26,18 @@ def main():
         with get_connection() as conn:
             with conn.transaction():
                 with conn.cursor() as cur:
-                    cur.execute(
-                        "SELECT id FROM auth.users WHERE email=%s",
-                        (email,),
-                    )
+                    try:
+                        cur.execute(
+                            "SELECT id FROM auth.users WHERE email=%s",
+                            (email,),
+                        )
+                    except psycopg.errors.UndefinedTable as exc:
+                        raise SystemExit(
+                            "The Tishla database schema is not initialized yet. "
+                            "Run: .\\backend\\.venv\\Scripts\\python.exe "
+                            ".\\backend\\scripts\\init_db_windows.py"
+                        ) from exc
+
                     existing = cur.fetchone()
 
                     if existing:
@@ -59,7 +69,7 @@ def main():
                     cur.execute("SELECT id FROM auth.roles WHERE code='admin'")
                     role = cur.fetchone()
                     if not role:
-                        raise SystemExit("The 'admin' role does not exist. Run the database seed/migration first.")
+                        raise SystemExit("The 'admin' role does not exist. Run the database initialization first.")
 
                     cur.execute(
                         """
