@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 import { SiteChrome } from "@/components/site-chrome";
 import { CartProvider } from "@/components/cart-provider";
 
@@ -11,9 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <body><CartProvider><SiteChrome>{children}</SiteChrome></CartProvider></body>
-    </html>
-  );
+  return <html lang="en"><body><CartProvider><SiteChrome>{children}</SiteChrome></CartProvider></body></html>;
 }
