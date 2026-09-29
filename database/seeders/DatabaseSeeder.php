@@ -30,12 +30,13 @@ class DatabaseSeeder extends Seeder
         foreach ([['Sarees','sarees'],['Lehengas','lehengas'],['Kurtis & Sets','kurtis-sets'],['Suits','suits'],['Gowns','gowns'],['Dupattas','dupattas'],['Blouses','blouses'],['Accessories','accessories']] as $i=>$row) Department::updateOrCreate(['slug'=>$row[1]],['name'=>$row[0],'sort_order'=>($i+1)*10,'is_active'=>true]);
         foreach (['New Arrivals'=>'new-arrivals','Bestsellers'=>'bestsellers','Wedding Edit'=>'wedding-edit','Festive Edit'=>'festive-edit','Party Edit'=>'party-edit','Ready to Ship'=>'ready-to-ship','Sale'=>'sale'] as $name=>$slug) Collection::updateOrCreate(['slug'=>$slug],['name'=>$name,'sort_order'=>10,'is_active'=>true,'is_featured'=>in_array($slug,['new-arrivals','bestsellers','wedding-edit'],true)]);
         foreach ([['about','About Tishla'],['shipping','Shipping & Delivery'],['returns','Returns'],['faq','Frequently Asked Questions'],['size-guide','Size Guide'],['contact','Contact Tishla']] as [$slug,$title]) Page::updateOrCreate(['slug'=>$slug],['title'=>$title,'excerpt'=>'Tishla by Purnika Sales · Surat','status'=>'published','published_at'=>now()]);
-        if (! env('TISHLA_ADMIN_PASSWORD')) return;
-        User::updateOrCreate(['email'=>env('TISHLA_ADMIN_EMAIL','admin@tishla.com')],[
-            'name'=>env('TISHLA_ADMIN_NAME','Shakti Develops'),
-            'password'=>Hash::make(env('TISHLA_ADMIN_PASSWORD')),
-            'role'=>'admin','is_active'=>true,
-        ]);
+        if (env('TISHLA_ADMIN_PASSWORD')) {
+            User::updateOrCreate(['email'=>env('TISHLA_ADMIN_EMAIL','admin@tishla.com')],[
+                'name'=>env('TISHLA_ADMIN_NAME','Shakti Develops'),
+                'password'=>Hash::make(env('TISHLA_ADMIN_PASSWORD')),
+                'role'=>'admin','is_active'=>true,
+            ]);
+        }
         if (! filter_var(env('TISHLA_DEMO_DATA',true),FILTER_VALIDATE_BOOLEAN)) return;
         $seed=[
             ['TS-NOOR-001','noor-dola-silk-saree','Noor Dola Silk Saree','Saree','Dola Silk',2499,'Bestseller','https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=1200&q=88'],
