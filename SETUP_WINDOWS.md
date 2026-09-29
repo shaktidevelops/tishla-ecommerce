@@ -1,54 +1,31 @@
-# Tishla — Windows setup
+# Tishla Windows setup
 
-## Prerequisites
+Install PHP 8.3+, Composer 2.x, MariaDB, Git and VS Code.
 
-- Windows 10/11
-- Python 3.12, 3.13 or 3.14
-- Node.js 20.9+ (Node 22 LTS is a good development target)
-- PostgreSQL 18 preferred, or another supported PostgreSQL version
+Keep the old Python, Node.js and PostgreSQL installations until the Laravel application has passed local testing.
 
-## First setup
+Verify:
+php -v
+composer --version
+mariadb --version
+git --version
 
-Open PowerShell in the project root:
+Create an empty MariaDB database named tishla.
 
-```powershell
-cd E:\Shakti\GitHub\tishla-ecommerce
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-.\START_HERE_WINDOWS.ps1
-```
+Copy .env.example to .env and set:
+DB_DATABASE=tishla
+DB_USERNAME=your_mariadb_user
+DB_PASSWORD=your_mariadb_password
+TISHLA_ADMIN_EMAIL=admin@tishla.com
+TISHLA_ADMIN_NAME="Shakti Develops"
+TISHLA_ADMIN_PASSWORD=choose-a-password-of-8-or-more-characters
 
-The script creates `backend\\.venv`, installs Python dependencies, installs Next.js dependencies, initializes PostgreSQL using Psycopg (not `psql`), and applies migrations/seeds.
+Run:
+composer install
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
 
-## Run
+Open http://127.0.0.1:8000/admin/login.
 
-```powershell
-.\scripts\run-all-windows.ps1
-```
-
-Then open:
-
-- http://localhost:3000
-- http://127.0.0.1:8000/docs
-- http://127.0.0.1:8000/health
-
-## Import catalogue
-
-Preview:
-
-```powershell
-.\scripts\run-import-windows.ps1 .\data\catalogue.csv
-```
-
-Apply:
-
-```powershell
-.\scripts\run-import-windows.ps1 .\data\catalogue.csv -Apply
-```
-
-## Notes
-
-`psql` is optional. Docker is optional for local Windows development. The root `.env` is the active local configuration; `.env.example` files are templates only.
-
-## One-command developer start
-
-Use `START_TISHLA_DEV.bat` for the simplest Windows experience. It invokes PowerShell with ExecutionPolicy Bypass for the current process, so you do not need to change your machine-wide PowerShell policy.
+No Node build step is required.

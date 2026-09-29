@@ -1,4 +1,0 @@
-import { notFound } from "next/navigation";
-import { ProductGridClient } from "@/components/product-grid-client";
-import { collections, products } from "@/lib/data";
-export default async function CollectionPage({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const c=collections.find(x=>x.slug===slug);if(!c)notFound();const items=slug==='bestsellers'?products.filter(p=>p.rating>=4.8):slug==='party-edit'?products.filter(p=>p.badge==='Party Edit'||p.category==='Gowns'):products;return <main className="page-pad"><section className="collection-hero-v3"><div className="container"><div className="collection-hero-copy"><span className="eyebrow light">{c.kicker}</span><h1>{c.name}</h1><p>{c.description}</p></div></div></section><div className="container"><ProductGridClient products={items}/></div></main>}

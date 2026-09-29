@@ -1,48 +1,39 @@
-# Tishla Commerce Platform v3
+# Tishla by Purnika Sales
 
-# Tishla Commerce Platform v2
+New architecture: PHP 8.3 + Laravel 13 + MariaDB + Blade + Composer.
 
-A complete multi-page fashion e-commerce foundation for Tishla by Purnika Sales.
+The main branch is now the new single Laravel application. The previous Next.js + FastAPI + PostgreSQL project is preserved in the branch legacy-next-fastapi-postgresql.
 
-## Stack
+Included:
+- Luxury English storefront shell
+- Catalogue, departments, variants and media schema
+- Retail and wholesale-ready customers
+- Cart and COD checkout foundation
+- Laravel session admin authentication
+- Admin dashboard
+- Product management
+- Order management
+- Customer directory
+- Merchandising overview
+- Media upload foundation
+- Settings
+- CMS/SEO tables for future modules
+- MariaDB migrations and development seed data
 
-- Next.js 16.3.3
-- React 19.3
-- TypeScript 5.9
-- Lucide React 1.48
-- Python 3.12–3.14
-- FastAPI 0.141.1
-- Psycopg 3.3.6
-- PostgreSQL 18-compatible SQL
-- Windows-native development first; Docker/VPS deployment remains optional
+Local requirements:
+PHP 8.3+, Composer 2.x, MariaDB 10.3+, Git and VS Code.
 
-Next.js 16.3.3 is pinned from the current active LTS line; React 19.3 is the current stable React release line. PostgreSQL 18 is the current supported major release. See `docs/SOURCES.md` for references.
+Node.js, Python, PostgreSQL and Docker are not required.
 
-## Start on Windows
+Setup:
+1. Create a MariaDB database named tishla.
+2. Copy .env.example to .env.
+3. Add TISHLA_ADMIN_PASSWORD with 8+ characters.
+4. Run composer install.
+5. Run php artisan key:generate.
+6. Run php artisan migrate --seed.
+7. Run php artisan serve.
 
-1. Copy the project to `E:\Shakti\GitHub\tishla-ecommerce`.
-2. Keep the root `.env` supplied with the package for local development, then rotate credentials before production.
-3. Open a new PowerShell and run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force`.
-4. Run `.\START_HERE_WINDOWS.ps1` (PowerShell path syntax: `.\START_HERE_WINDOWS.ps1`).
-5. After setup, run `.\scripts\run-all-windows.ps1`.
+Open http://127.0.0.1:8000 and /admin/login.
 
-Then open `http://localhost:3000`.
-
-## Database
-
-Use `database/TISHLA_DATABASE.sql` for a consolidated install. Sequential migrations are in `database/migrations`.
-
-The database is divided into `auth`, `store`, `cms`, and `audit` schemas. The store covers catalogue, departments, collections, variants, pricing, inventory, customers, wholesale, carts, orders, payments, shipping, returns, coupons, enquiries, reviews and SEO. CMS covers pages, banners, homepage sections, navigation, lookbooks, blog posts and FAQs.
-
-## Single-command Windows development
-
-From `E:\\Shakti\\GitHub\\tishla-ecommerce`, either double-click `START_TISHLA_DEV.cmd` or run `START_TISHLA_DEV.cmd` from PowerShell. This prepares dependencies, initializes PostgreSQL, starts the FastAPI API and Next.js storefront, and opens `http://localhost:3000`.
-
-
-## Current frontend iteration
-See `FRONTEND_UPGRADE_V3.md` and open `FRONTEND_PREVIEW.html` for the latest visual checkpoint before API wiring.
-
-
-## Windows quick launch
-
-Use `START_TISHLA_DEV.cmd` for the full stack. Use `START_TISHLA_FRONTEND.cmd` for a frontend-only visual preview without PostgreSQL/FastAPI.
+Never commit .env, database passwords, mail credentials or Razorpay secrets.

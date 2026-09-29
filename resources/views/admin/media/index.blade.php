@@ -1,0 +1,5 @@
+@extends('layouts.admin')@section('content')
+<div class="admin-page-head"><div><span class="eyebrow">MEDIA LIBRARY</span><h1>Brand & product imagery</h1><p>Upload image assets without Node.js.</p></div></div>
+<section class="admin-card"><form method="post" action="{{ route('admin.media.store') }}" enctype="multipart/form-data" class="upload-row">@csrf<label class="field"><span>Image</span><input type="file" name="file" accept="image/*" required></label><label class="field"><span>Alt text</span><input name="alt_text" placeholder="Describe the image"></label><button class="btn btn-dark">UPLOAD</button></form></section>
+<section class="media-grid">@forelse($media as $item)<div class="media-card"><img src="{{ $item->public_url }}" alt="{{ $item->alt_text }}"><div><span>{{ $item->alt_text }}</span><form method="post" action="{{ route('admin.media.destroy',$item) }}">@csrf @method('DELETE')<button>Remove</button></form></div></div>@empty<div class="empty">No media uploaded yet.</div>@endforelse</section>
+@endsection

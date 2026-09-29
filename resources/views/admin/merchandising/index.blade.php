@@ -1,0 +1,4 @@
+@extends('layouts.admin')@section('content')
+<div class="admin-page-head"><div><span class="eyebrow">MERCHANDISING</span><h1>Departments & collections</h1><p>Taxonomy and editorial collection foundations for the storefront.</p></div></div>
+<div class="admin-grid-2"><section class="admin-card"><span class="eyebrow">DEPARTMENTS</span><h2>Shop taxonomy</h2>@foreach($departments as $department)<div class="admin-list-row"><span><b>{{ $department->name }}</b><small>{{ $department->slug }}</small></span><strong>{{ $department->products_count }}</strong></div>@endforeach</section><section class="admin-card"><span class="eyebrow">COLLECTIONS</span><h2>Editorial edits</h2>@foreach($collections as $collection)<div class="admin-list-row"><span><b>{{ $collection->name }}</b><small>{{ $collection->slug }}</small></span><strong>{{ $collection->products_count }}</strong></div>@endforeach</section></div>
+@endsection
