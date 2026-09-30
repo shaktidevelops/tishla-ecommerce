@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Collection;
 use App\Models\Department;
+use App\Models\MasterValue;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -25,11 +26,40 @@ class DatabaseSeeder extends Seeder
             'support_email'=>env('TISHLA_SUPPORT_EMAIL','purnikasales@gmail.com'),
             'support_whatsapp'=>env('TISHLA_WHATSAPP','919574716712'),
         ]]);
-        Setting::updateOrCreate(['key'=>'checkout'],['value'=>['guest_checkout'=>true,'cod_enabled'=>true,'online_payment_enabled'=>false,'minimum_order_value'=>0]]);
-        Setting::updateOrCreate(['key'=>'tax'],['value'=>['gst_rate'=>(float)env('TISHLA_GST_RATE',5),'default_shipping_charge'=>0]]);
-        foreach ([['Sarees','sarees'],['Lehengas','lehengas'],['Kurtis & Sets','kurtis-sets'],['Suits','suits'],['Gowns','gowns'],['Dupattas','dupattas'],['Blouses','blouses'],['Accessories','accessories']] as $i=>$row) Department::updateOrCreate(['slug'=>$row[1]],['name'=>$row[0],'sort_order'=>($i+1)*10,'is_active'=>true]);
-        foreach (['New Arrivals'=>'new-arrivals','Bestsellers'=>'bestsellers','Wedding Edit'=>'wedding-edit','Festive Edit'=>'festive-edit','Party Edit'=>'party-edit','Ready to Ship'=>'ready-to-ship','Sale'=>'sale'] as $name=>$slug) Collection::updateOrCreate(['slug'=>$slug],['name'=>$name,'sort_order'=>10,'is_active'=>true,'is_featured'=>in_array($slug,['new-arrivals','bestsellers','wedding-edit'],true)]);
-        foreach ([['about','About Tishla'],['shipping','Shipping & Delivery'],['returns','Returns'],['faq','Frequently Asked Questions'],['size-guide','Size Guide'],['contact','Contact Tishla']] as [$slug,$title]) Page::updateOrCreate(['slug'=>$slug],['title'=>$title,'excerpt'=>'Tishla by Purnika Sales · Surat','status'=>'published','published_at'=>now()]);
+        Setting::updateOrCreate(['key'=>'checkout'],['value'=>[
+            'guest_checkout'=>true,'cod_enabled'=>true,'online_payment_enabled'=>false,'minimum_order_value'=>0
+        ]]);
+        Setting::updateOrCreate(['key'=>'tax'],['value'=>[
+            'gst_rate'=>(float)env('TISHLA_GST_RATE',5),'default_shipping_charge'=>0
+        ]]);
+        Setting::updateOrCreate(['key'=>'commerce_defaults'],['value'=>[
+            'care_instructions'=>'Hand wash or dry clean as appropriate for the fabric. Store folded in a cool, dry place and avoid prolonged direct sunlight. Follow the garment label for fabric-specific care.',
+            'shipping_notes'=>'Orders are carefully packed and dispatched across India. Delivery timelines may vary by destination, availability and courier service. Tracking details are shared after dispatch.',
+        ]]);
+
+        foreach ([['Sarees','sarees'],['Lehengas','lehengas'],['Kurtis & Sets','kurtis-sets'],['Suits','suits'],['Gowns','gowns'],['Dupattas','dupattas'],['Blouses','blouses'],['Accessories','accessories']] as $i=>$row) {
+            Department::updateOrCreate(['slug'=>$row[1]],['name'=>$row[0],'sort_order'=>($i+1)*10,'is_active'=>true]);
+        }
+
+        foreach ([
+            ['product_type','Saree'],['product_type','Lehenga'],['product_type','Kurti Set'],['product_type','Suit'],
+            ['product_type','Gown'],['product_type','Dupatta'],['product_type','Blouse'],['product_type','Accessory'],
+            ['shoot_type','Model Shoot'],['shoot_type','Editorial'],['shoot_type','Studio'],['shoot_type','Flatlay'],['shoot_type','Detail Shoot'],['shoot_type','Campaign'],
+        ] as $i=>$row) {
+            MasterValue::updateOrCreate(
+                ['master_type'=>$row[0],'slug'=>\Illuminate\Support\Str::slug($row[1])],
+                ['name'=>$row[1],'sort_order'=>($i+1)*10,'is_active'=>true]
+            );
+        }
+
+        foreach (['New Arrivals'=>'new-arrivals','Bestsellers'=>'bestsellers','Wedding Edit'=>'wedding-edit','Festive Edit'=>'festive-edit','Party Edit'=>'party-edit','Ready to Ship'=>'ready-to-ship','Sale'=>'sale'] as $name=>$slug) {
+            Collection::updateOrCreate(['slug'=>$slug],['name'=>$name,'sort_order'=>10,'is_active'=>true,'is_featured'=>in_array($slug,['new-arrivals','bestsellers','wedding-edit'],true)]);
+        }
+
+        foreach ([['about','About Tishla'],['shipping','Shipping & Delivery'],['returns','Returns'],['faq','Frequently Asked Questions'],['size-guide','Size Guide'],['contact','Contact Tishla']] as [$slug,$title]) {
+            Page::updateOrCreate(['slug'=>$slug],['title'=>$title,'excerpt'=>'Tishla by Purnika Sales · Surat','status'=>'published','published_at'=>now()]);
+        }
+
         if (env('TISHLA_ADMIN_PASSWORD')) {
             User::updateOrCreate(['email'=>env('TISHLA_ADMIN_EMAIL','admin@tishla.com')],[
                 'name'=>env('TISHLA_ADMIN_NAME','Shakti Develops'),
@@ -37,7 +67,9 @@ class DatabaseSeeder extends Seeder
                 'role'=>'admin','is_active'=>true,
             ]);
         }
+
         if (! filter_var(env('TISHLA_DEMO_DATA',true),FILTER_VALIDATE_BOOLEAN)) return;
+
         $seed=[
             ['TS-NOOR-001','noor-dola-silk-saree','Noor Dola Silk Saree','Saree','Dola Silk',2499,'Bestseller','https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=1200&q=88'],
             ['TS-HER-002','zari-heritage-silk','Zari Heritage Silk Saree','Saree','Pure Silk',3899,'New','https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1200&q=88'],
