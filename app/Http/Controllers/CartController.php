@@ -41,7 +41,7 @@ class CartController extends Controller
             'variant_name' => $variant?->name,
             'price' => (float)($variant?->price ?? $product->base_price),
             'quantity' => 0,
-            'image_url' => $product->images()->first()?->public_url ?? asset('favicon.svg'),
+            'image_url' => $product->images()->first()?->public_url ?? asset('tishla-favicon.png'),
         ];
 
         $cart[$key]['quantity'] += (int)$data['quantity'];
