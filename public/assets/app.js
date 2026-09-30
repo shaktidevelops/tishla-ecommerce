@@ -26,6 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
     revealItems.forEach(item => item.classList.add('is-visible'));
   }
 
+  const mainImage = document.querySelector('[data-main-image]');
+  const thumbs = document.querySelectorAll('[data-product-thumb]');
+  if (mainImage && thumbs.length) {
+    thumbs.forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        mainImage.src = thumb.dataset.image;
+        mainImage.alt = thumb.dataset.alt || '';
+        thumbs.forEach(item => item.classList.remove('active'));
+        thumb.classList.add('active');
+      });
+    });
+  }
+
   const adminToggle = document.querySelector('[data-admin-menu]');
   const adminSidebar = document.querySelector('[data-admin-sidebar]');
   if (adminToggle && adminSidebar) {
