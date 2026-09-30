@@ -32,6 +32,7 @@ Route::delete('/cart/{key}', [CartController::class, 'remove'])->name('cart.remo
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/admin/login', [LoginController::class, 'show'])->name('admin.login');
+Route::get('/admin/login', [LoginController::class, 'show'])->name('login');
 Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [LoginController::class, 'logout'])->middleware('auth')->name('admin.logout');
 
