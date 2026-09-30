@@ -24,7 +24,7 @@
   @if(request()->filled('order_number'))
     @if($order)
       @php
-        $steps = ['pending_payment'=>'Order placed','confirmed'=>'Confirmed','processing'=>'Preparing','shipped'=>'Shipped','delivered'=>'Delivered'];
+        $steps = ['pending_payment'=>'Order placed','paid'=>'Payment confirmed','confirmed'=>'Confirmed','processing'=>'Preparing','packed'=>'Packed','shipped'=>'Shipped','delivered'=>'Delivered'];
         $statuses = array_keys($steps);
         $current = array_search($order->status, $statuses, true);
         if ($current === false) $current = $order->status === 'cancelled' ? -1 : 0;
@@ -33,10 +33,12 @@
         <div class="tracking-top"><div><span class="eyebrow">ORDER {{ $order->order_number }}</span><h2>{{ $order->customer_name }}</h2></div><strong>₹{{ number_format((float)$order->grand_total,2) }}</strong></div>
         @if($order->status === 'cancelled')
           <div class="status-banner danger">This order has been cancelled.</div>
+        @elseif(in_array($order->status,['payment_failed','refunded','returned'],true))
+          <div class="status-banner danger">Current status: {{ str_replace('_',' ',ucfirst($order->status)) }}.</div>
         @else
           <div class="tracking-line">
             @foreach($steps as $key=>$label)
-              <div class="track-step {{ $current !== false && array_search($key,$statuses,true) <= $current ? 'done':'' }}"><span>{{ array_search($key,$statuses,true) <= $current ? '✓' : '•' }}</span><small>{{ $label }}</small></div>
+              <div class="track-step {{ $current >= array_search($key,$statuses,true) ? 'done':'' }}"><span>{{ $current >= array_search($key,$statuses,true) ? '✓' : '•' }}</span><small>{{ $label }}</small></div>
             @endforeach
           </div>
         @endif
