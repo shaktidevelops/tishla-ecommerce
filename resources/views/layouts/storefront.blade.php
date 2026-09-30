@@ -22,7 +22,7 @@
       <div class="nav-spacer"></div>
       <a class="brand-logo" href="{{ route('home') }}" aria-label="Tishla by Purnika Sales"><img src="{{ asset('assets/tishla-logo.png') }}" alt="Tishla by Purnika Sales"></a>
       <div class="nav-actions" aria-label="Store actions">
-        <a href="{{ route('shop') }}" aria-label="Search">⌕</a>
+        <button type="button" class="icon-button search-open" data-search-open aria-label="Search">⌕</button>
         <a href="{{ route('wishlist') }}" class="wishlist-nav-link" aria-label="Wishlist">♡ <span class="nav-count">{{ count(session('wishlist',[])) }}</span></a>
         <a href="{{ route('cart') }}" aria-label="Shopping bag">Bag <span class="bag-count">{{ collect(session('cart',[]))->sum('quantity') }}</span></a>
         @auth<a class="admin-link" href="{{ route('admin.dashboard') }}">ADMIN</a>@endauth
