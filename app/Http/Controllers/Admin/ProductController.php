@@ -157,7 +157,7 @@ class ProductController extends Controller
         $headers = fgetcsv($handle);
         if (!$headers) return back()->with('error','The CSV is empty.');
         $headers = array_map(fn($v)=>Str::of((string)$v)->trim()->lower()->replace(' ','_')->toString(),$headers);
-        $required = array_diff($this->csvHeaders(),$headers);
+        $required = ['sku','name'];
         if (array_diff($required, $headers)) {
             fclose($handle);
             return back()->with('error','CSV must contain these columns: '.implode(', ',$required));
