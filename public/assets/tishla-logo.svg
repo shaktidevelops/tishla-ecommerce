@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title desc">
+  <title id="title">Tishla by Purnika Sales</title>
+  <desc id="desc">Elegant Tishla monogram and wordmark in wine and gold.</desc>
+  <defs>
+    <linearGradient id="wine" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#22020A"/>
+      <stop offset="1" stop-color="#7A1234"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0" stop-color="#9B7018"/>
+      <stop offset=".5" stop-color="#E4C15B"/>
+      <stop offset="1" stop-color="#B98A1C"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(8 8)">
+    <circle cx="52" cy="52" r="49" fill="none" stroke="url(#gold)" stroke-width="2"/>
+    <circle cx="52" cy="52" r="41" fill="none" stroke="#D4AF37" stroke-opacity=".28"/>
+    <path d="M28 31h48v9H59v34h-14V40H28z" fill="url(#gold)"/>
+    <path d="M37 31h30" stroke="#fff4d3" stroke-opacity=".65" stroke-width="1.2"/>
+  </g>
+  <g transform="translate(132 21)">
+    <text x="0" y="39" font-family="Georgia, 'Times New Roman', serif" font-size="48" font-weight="500" letter-spacing="9" fill="#22020A">TISHLA</text>
+    <text x="2" y="67" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" letter-spacing="4.4" fill="#9B7018">BY PURNIKA SALES</text>
+    <path d="M2 78H378" stroke="url(#gold)" stroke-width="1"/>
+  </g>
+</svg>
