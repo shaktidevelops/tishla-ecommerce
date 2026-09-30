@@ -8,7 +8,7 @@ $defaults=$settings['commerce_defaults']->value??[];
 @endphp
 
 <div class="admin-page-head">
-  <div><span class="eyebrow">STORE CONFIGURATION</span><h1>Commerce settings</h1><p>Keep operational defaults, tax rules and customer-facing service language in one place.</p></div>
+  <div><span class="eyebrow">STORE CONFIGURATION</span><h1>Store settings</h1><p>Manage store identity, checkout defaults and shared customer information.</p></div>
 </div>
 
 <form method="post" action="{{ route('admin.settings.update') }}" class="settings-shell">
@@ -25,7 +25,7 @@ $defaults=$settings['commerce_defaults']->value??[];
 </section>
 
 <section class="admin-card settings-card">
-  <div class="settings-section-head"><div><span class="eyebrow">02 · TAX & DELIVERY</span><h2>Commercial defaults.</h2></div><span>CHECKOUT</span></div>
+  <div class="settings-section-head"><div><span class="eyebrow">02 · TAX & DELIVERY</span><h2>Checkout & commercial defaults.</h2></div><span>CHECKOUT</span></div>
   <div class="form-grid three">
     <label class="field"><span>GST rate %</span><input type="number" step="0.01" name="gst_rate" value="{{ old('gst_rate',$tax['gst_rate']??env('TISHLA_GST_RATE',5)) }}"></label>
     <label class="field"><span>Default shipping charge</span><input type="number" step="0.01" name="shipping_charge" value="{{ old('shipping_charge',$tax['default_shipping_charge']??0) }}"></label>
@@ -39,8 +39,8 @@ $defaults=$settings['commerce_defaults']->value??[];
 </section>
 
 <section class="admin-card settings-card">
-  <div class="settings-section-head"><div><span class="eyebrow">03 · SHARED CUSTOMER COPY</span><h2>Care & shipping language.</h2></div><span>APPLIES TO ALL PRODUCTS</span></div>
-  <div class="shared-copy-banner"><span>✦</span><div><strong>Managed centrally</strong><p>These two messages are intentionally not stored on individual products. Change them once here and the storefront uses the latest version everywhere.</p></div></div>
+  <div class="settings-section-head"><div><span class="eyebrow">03 · SHARED STORE COPY</span><h2>Care & shipping</h2></div><span>APPLIES TO ALL PRODUCTS</span></div>
+  <div class="shared-copy-banner"><span>✦</span><div><strong>Shared across catalogue</strong><p>These messages are maintained once here and displayed across product pages.</p></div></div>
   <div class="form-grid two">
     <label class="field"><span>Care instructions</span><textarea name="care_instructions" rows="9" required>{{ old('care_instructions',$defaults['care_instructions']??'') }}</textarea></label>
     <label class="field"><span>Shipping notes</span><textarea name="shipping_notes" rows="9" required>{{ old('shipping_notes',$defaults['shipping_notes']??'') }}</textarea></label>
