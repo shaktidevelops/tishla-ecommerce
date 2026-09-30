@@ -52,6 +52,7 @@ class InventoryController extends Controller
         DB::transaction(function () use ($data) {
             $stock = DB::table('inventory_stock')->where(['location_id' => $data['location_id'], 'variant_id' => $data['variant_id']])->lockForUpdate()->first();
             if (!$stock) {
+                if ((int)$data['quantity'] < 0) abort(422, 'Cannot reduce stock for a variant/location that has no stock record yet.');
                 $id = (string) Str::uuid();
                 DB::table('inventory_stock')->insert([
                     'id' => $id,
