@@ -20,7 +20,7 @@
       <button class="mobile-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false">☰</button>
       <div class="nav-spacer"></div>
       <a class="brand-logo" href="{{ route('home') }}" aria-label="Tishla by Purnika Sales">
-        <img src="{{ asset('assets/tishla-logo.png') }}" alt="Tishla by Purnika Sales" onerror="this.onerror=null;this.src='{{ asset('assets/tishla-logo.svg') }}';">
+        <img src="{{ asset('assets/tishla-logo.png') }}" alt="Tishla by Purnika Sales">
       </a>
       <div class="nav-actions" aria-label="Store actions">
         <a href="{{ route('shop') }}" aria-label="Search">⌕</a>
@@ -48,7 +48,7 @@
 <footer class="site-footer">
   <div class="footer-top">
     <div class="footer-brand">
-      <img src="{{ asset('assets/tishla-logo.png') }}" alt="Tishla by Purnika Sales" class="footer-logo" onerror="this.onerror=null;this.src='{{ asset('assets/tishla-logo.svg') }}';">
+      <img src="{{ asset('assets/tishla-logo.png') }}" alt="Tishla by Purnika Sales" class="footer-logo">
       <p>Indian occasionwear and contemporary silhouettes, curated with a Surat point of view.</p>
       <div class="footer-socials" aria-label="Tishla social media">
         <a class="social-orbit" href="https://www.instagram.com/tishlawear/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @tishlawear">
