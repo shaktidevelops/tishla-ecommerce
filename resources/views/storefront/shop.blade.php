@@ -61,12 +61,17 @@
         <input name="q" value="{{ $filters['q'] }}" placeholder="Search saree, silk, organza…">
         <button class="search-submit" aria-label="Search">⌕</button>
       </form>
-      <label class="sort-field"><span>SORT</span><select onchange="this.form.submit()" form="sort-form"><option value="newest" {{ $filters['sort']==='newest'?'selected':'' }}>Newest</option><option value="price_asc" {{ $filters['sort']==='price_asc'?'selected':'' }}>Price: Low to High</option><option value="price_desc" {{ $filters['sort']==='price_desc'?'selected':'' }}>Price: High to Low</option><option value="name" {{ $filters['sort']==='name'?'selected':'' }}>Name</option></select></label>
-      <form id="sort-form" method="get">
+      <form class="sort-field" method="get">
         @foreach(['q','department','collection','min_price','max_price'] as $key)
           @if($filters[$key])<input type="hidden" name="{{ $key }}" value="{{ $filters[$key] }}">@endif
         @endforeach
-        <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
+        <span>SORT</span>
+        <select name="sort" onchange="this.form.submit()">
+          <option value="newest" {{ $filters['sort']==='newest'?'selected':'' }}>Newest</option>
+          <option value="price_asc" {{ $filters['sort']==='price_asc'?'selected':'' }}>Price: Low to High</option>
+          <option value="price_desc" {{ $filters['sort']==='price_desc'?'selected':'' }}>Price: High to Low</option>
+          <option value="name" {{ $filters['sort']==='name'?'selected':'' }}>Name</option>
+        </select>
       </form>
     </div>
 
@@ -81,22 +86,24 @@
       @forelse($products as $product)
         @php $isSaved=$wishlist->contains((string)$product->id); $defaultVariant=$product->variants->first(); @endphp
         <article class="product-card product-card-pro reveal">
-          <a href="{{ route('product',$product->slug) }}" class="product-image">
-            @if($product->images->first())
-              <img src="{{ $product->images->first()->public_url }}" alt="{{ $product->images->first()->alt_text ?: $product->name }}" loading="lazy">
-            @else
-              <div class="image-fallback"><span>T</span></div>
-            @endif
-            @if($product->product_badge)<span class="badge">{{ $product->product_badge }}</span>@endif
-            <form method="post" action="{{ route('wishlist.toggle',$product) }}" class="wishlist-form" onclick="event.stopPropagation()">@csrf
+          <div class="product-image">
+            <a href="{{ route('product',$product->slug) }}" class="product-image-link">
+              @if($product->images->first())
+                <img src="{{ $product->images->first()->public_url }}" alt="{{ $product->images->first()->alt_text ?: $product->name }}" loading="lazy">
+              @else
+                <div class="image-fallback"><span>T</span></div>
+              @endif
+              @if($product->product_badge)<span class="badge">{{ $product->product_badge }}</span>@endif
+              <span class="quick-view">QUICK VIEW ↗</span>
+            </a>
+            <form method="post" action="{{ route('wishlist.toggle',$product) }}" class="wishlist-form">@csrf
               <button type="submit" class="wishlist-button {{ $isSaved ? 'saved' : '' }}" aria-label="{{ $isSaved ? 'Remove from wishlist' : 'Save to wishlist' }}">{{ $isSaved ? '♥' : '♡' }}</button>
             </form>
-            <span class="quick-view">QUICK VIEW ↗</span>
-          </a>
+          </div>
           <div class="product-meta">
             <span>{{ $product->department?->name }}</span>
             <a href="{{ route('product',$product->slug) }}"><strong>{{ $product->name }}</strong></a>
-            <div class="product-price-row"><b>₹{{ number_format((float)$product->base_price,0) }}</b>@if($product->variants->count()>1)<small>{{ $product->variants->count() }} options</small>@endif</div>
+            <div class="product-price-row"><b>₹{{ number_format((float)$product->base_price,0) }}</b>@if($product->variants->count()>1)<small>{{ $product->variants->count() }} options</small>@elseif($product->variants->count()===1)<small>Ready to shop</small>@endif</div>
           </div>
           <form method="post" action="{{ route('cart.add',$product) }}" class="quick-add-form">
             @csrf
