@@ -26,6 +26,8 @@ class SettingsController extends Controller
             'guest_checkout'=>'nullable|boolean',
             'cod_enabled'=>'nullable|boolean',
             'online_payment_enabled'=>'nullable|boolean',
+            'care_instructions'=>'required|string|max:5000',
+            'shipping_notes'=>'required|string|max:5000',
         ]);
 
         Setting::updateOrCreate(['key'=>'store'],['value'=>[
@@ -40,7 +42,11 @@ class SettingsController extends Controller
             'cod_enabled'=>(bool)($data['cod_enabled']??false),
             'online_payment_enabled'=>(bool)($data['online_payment_enabled']??false),
         ]]);
+        Setting::updateOrCreate(['key'=>'commerce_defaults'],['value'=>[
+            'care_instructions'=>$data['care_instructions'],
+            'shipping_notes'=>$data['shipping_notes'],
+        ]]);
 
-        return back()->with('success','Store settings saved.');
+        return back()->with('success','Store settings and shared commerce copy saved.');
     }
 }
