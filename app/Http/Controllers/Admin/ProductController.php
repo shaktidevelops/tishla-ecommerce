@@ -69,6 +69,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $data = $this->validated($request,$product->id);
+        $data['featured']=$request->boolean('featured');
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
         $product->update($data);
         $this->syncCollections($product,$request);
@@ -166,7 +167,9 @@ class ProductController extends Controller
         $success=0; $errors=[]; $seen=[];
         while (($values=fgetcsv($handle)) !== false) {
             if (count(array_filter($values,fn($v)=>trim((string)$v)!=='')) === 0) continue;
-            $row = array_pad(array_combine($headers,$values),count($headers),null);
+            if (count($values) > count($headers)) { $errors[]='Row '.(count($errors)+2).' — too many CSV columns.'; continue; }
+            $values = array_pad($values,count($headers),null);
+            $row = array_combine($headers,$values);
             $sku = trim((string)($row['sku'] ?? ''));
             try {
                 if (!$sku) throw new \RuntimeException('SKU is required.');
