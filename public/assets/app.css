@@ -122,3 +122,21 @@ a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}b
 .accordions{margin-top:27px;border-top:1px solid var(--line)}.accordions details{border-bottom:1px solid var(--line);padding:0}.accordions summary{list-style:none;cursor:pointer;padding:17px 0;font-size:8px;font-weight:800;letter-spacing:.13em;display:flex;justify-content:space-between}.accordions summary::-webkit-details-marker{display:none}.accordions summary span{color:var(--gold-deep);font-size:13px}.accordions p{margin:0 0 18px;color:var(--muted);font-size:10px;line-height:1.8;max-width:630px}
 @media(max-width:800px){.product-breadcrumb{padding:18px 20px 0}.premium-product{padding-top:22px}.product-thumbs{grid-template-columns:repeat(4,1fr)}.variant-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.product-thumbs{grid-template-columns:repeat(4,1fr)}.buy-row{grid-template-columns:74px 1fr}.product-lead{font-size:12px!important}.trust-pills span{font-size:6px}.product-stage-label{left:12px;bottom:12px}}
+
+.brand-hero{position:relative;max-width:1480px;margin:auto;min-height:min(760px,58vw);overflow:hidden;background:#22040c}
+.brand-hero picture,.brand-hero picture img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.brand-hero picture img{object-fit:cover;object-position:center}
+.brand-hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(24,1,7,.72) 0%,rgba(24,1,7,.34) 34%,rgba(24,1,7,.03) 65%,rgba(24,1,7,.12) 100%)}
+.brand-hero-copy{position:relative;z-index:2;padding:9vw 6vw 8vw;max-width:620px;color:#fff6e7}
+.brand-hero-copy .eyebrow{color:#f2d682}
+.brand-hero h1{font:600 clamp(60px,7.4vw,108px)/.82 var(--serif);letter-spacing:-.035em;margin:15px 0 20px}
+.brand-hero h1 em{font-style:italic;color:#f2cf78}
+.brand-hero-copy p{max-width:500px;font-size:14px;line-height:1.9;color:#f4e7d3;margin:0}
+.brand-hero .btn-light{background:rgba(255,251,242,.9)}
+.brand-hero-note{position:absolute;right:36px;bottom:28px;z-index:3;color:#f4d98d;font-size:7px;font-weight:800;letter-spacing:.2em}
+.community-feature{max-width:1480px;margin:auto;padding:80px 6vw;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;background:#f4e8da}
+.community-image{max-width:540px;margin:auto}.community-image img{width:100%;height:auto;display:block;filter:drop-shadow(0 24px 45px rgba(36,3,12,.11))}
+.community-copy{max-width:520px}.community-copy h2{font:600 clamp(56px,6.5vw,82px)/.86 var(--serif);letter-spacing:-.03em;margin:16px 0 24px}.community-copy h2 em{font-style:italic;color:var(--berry)}
+.community-copy p{color:var(--muted);line-height:1.9;margin-bottom:28px}.community-copy small{display:block;margin-top:15px;color:#8f7b81;font-size:7px;letter-spacing:.12em;text-transform:uppercase}
+@media(max-width:800px){.brand-hero{min-height:650px}.brand-hero picture img{object-position:58% center}.brand-hero-copy{padding:65px 20px}.brand-hero h1{font-size:clamp(58px,16vw,88px)}.brand-hero-note{right:20px;bottom:20px}.community-feature{grid-template-columns:1fr;padding:65px 20px;gap:30px}.community-copy h2{font-size:60px}}
+@media(max-width:520px){.brand-hero{min-height:620px}.brand-hero-shade{background:linear-gradient(180deg,rgba(24,1,7,.2),rgba(24,1,7,.68))}.brand-hero picture img{object-position:62% center}.brand-hero-copy{padding:60px 20px 40px}.brand-hero-copy p{font-size:12px}.community-copy h2{font-size:53px}}
