@@ -24,6 +24,7 @@
       </a>
       <div class="nav-actions" aria-label="Store actions">
         <a href="{{ route('shop') }}" aria-label="Search">⌕</a>
+        <a href="{{ route('wishlist') }}" class="wishlist-nav-link" aria-label="Wishlist">♡ <span class="nav-count">{{ count(session('wishlist',[])) }}</span></a>
         <a href="{{ route('cart') }}" aria-label="Shopping bag">Bag <span class="bag-count">{{ collect(session('cart',[]))->sum('quantity') }}</span></a>
         @auth<a class="admin-link" href="{{ route('admin.dashboard') }}">ADMIN</a>@endauth
       </div>
@@ -110,6 +111,10 @@
   </div>
 </footer>
 
+<a class="floating-wa" href="https://wa.me/{{ env('TISHLA_WHATSAPP','919574716712') }}" target="_blank" rel="noopener noreferrer" aria-label="Chat with Tishla on WhatsApp">
+  <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.1 3.9A9.9 9.9 0 0 0 4.4 16.1L3 21l5-1.3A9.9 9.9 0 1 0 20.1 3.9ZM12 19.1c-1.5 0-2.9-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A7.9 7.9 0 1 1 12 19.1Zm4.4-5.8c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.3-.6.8-.7 1-.1.1-.3.2-.5.1-1.8-.9-3-1.6-4.1-3.7-.3-.5.3-.5.7-1.3.1-.2.1-.4 0-.5l-.4-1c-.1-.3-.3-.3-.5-.3h-.4c-.1 0-.4.1-.6.3-.6.6-.8 1.4-.8 2.2 0 .5.1 1 .3 1.4.1.1 1.2 2.7 4.1 4.2 2.4 1.2 2.4.8 2.8.8.6 0 1.9-.8 2.1-1.6.1-.4.1-.7 0-.8Z" fill="currentColor"/></svg></span>
+  <em>WhatsApp</em>
+</a>
 <script src="{{ asset('assets/app.js') }}"></script>
 </body>
 </html>
