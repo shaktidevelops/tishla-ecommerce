@@ -41,6 +41,7 @@ class MasterController extends Controller
                 'is_active' => true,
             ]);
         } else {
+            $request->validate(['name' => [Rule::unique('master_values','name')->where(fn($q)=>$q->where('master_type',$type))]]);
             MasterValue::create([
                 'master_type' => $type,
                 'name' => $data['name'],
