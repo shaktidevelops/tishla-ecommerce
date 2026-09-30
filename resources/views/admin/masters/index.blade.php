@@ -17,12 +17,12 @@ $masterSections=[
   <div class="master-list">
   @forelse($section['items'] as $item)
     <form class="master-row" method="post" action="{{ route('admin.masters.update',[$section['type'],$item->id]) }}">
-      @csrf @method('PATCH')
+      @csrf
       <input name="name" value="{{ $item->name }}" required>
       <input name="sort_order" type="number" min="0" value="{{ $item->sort_order }}" aria-label="Sort order">
       <label class="master-active"><input type="checkbox" name="is_active" value="1" @checked($item->is_active)> Active</label>
-      <button class="text-button">SAVE</button>
-      <button class="danger-mini" formaction="{{ route('admin.masters.destroy',[$section['type'],$item->id]) }}" formmethod="post" onclick="return confirm('Remove this master value?')">@method('DELETE')×</button>
+      <button class="text-button" name="_method" value="PATCH">SAVE</button>
+      <button class="danger-mini" name="_method" value="DELETE" formaction="{{ route('admin.masters.destroy',[$section['type'],$item->id]) }}" onclick="return confirm('Remove this master value?')">×</button>
     </form>
   @empty<div class="empty">No values yet.</div>@endforelse
   </div>
