@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\StoreSupportController;
 use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,10 @@ Route::get('/products/{slug}', [StorefrontController::class, 'product'])->name('
 Route::get('/pages/{slug}', [StorefrontController::class, 'page'])->name('page');
 Route::get('/wishlist', [StorefrontController::class, 'wishlist'])->name('wishlist');
 Route::post('/wishlist/toggle/{product}', [StorefrontController::class, 'toggleWishlist'])->name('wishlist.toggle');
+
+Route::get('/track-order', [StoreSupportController::class, 'tracking'])->name('track-order');
+Route::get('/contact', [StoreSupportController::class, 'contact'])->name('contact');
+Route::post('/contact', [StoreSupportController::class, 'submitContact'])->name('contact.submit');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
