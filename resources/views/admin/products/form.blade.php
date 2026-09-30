@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
 <div class="admin-page-head">
-  <div><span class="eyebrow">CATALOGUE STUDIO</span><h1>{{ $product->exists?'Edit product':'New product' }}</h1><p>Manage product identity, pricing, variants and merchandising from one focused workspace.</p></div>
+  <div><span class="eyebrow">CATALOGUE STUDIO</span><h1>{{ $product->exists?'Edit product':'New product' }}</h1><p>Create or maintain the product record, variants, pricing and merchandising data.</p></div>
   <div class="head-actions"><a class="btn btn-light" href="{{ route('admin.products.index') }}">BACK TO CATALOGUE</a>@if($product->exists)<a class="btn btn-dark" href="{{ route('product',$product->slug) }}" target="_blank" rel="noopener">VIEW STOREFRONT ↗</a>@endif</div>
 </div>
 
@@ -12,7 +12,7 @@
 @csrf @if($product->exists)@method('PUT')@endif
 
 <section class="admin-card studio-card">
-  <div class="studio-card-head"><div><span class="eyebrow">01 · PRODUCT IDENTITY</span><h2>Define the piece.</h2></div><span class="studio-counter">SOURCE OF TRUTH</span></div>
+  <div class="studio-card-head"><div><span class="eyebrow">01 · PRODUCT</span><h2>Product information</h2></div><span class="studio-counter">CORE RECORD</span></div>
   <div class="form-grid three">
     <label class="field"><span>Product name</span><input name="name" value="{{ old('name',$product->name) }}" placeholder="e.g. Gulbahar Organza Saree" required></label>
     <label class="field"><span>SKU</span><input name="sku" value="{{ old('sku',$product->sku) }}" placeholder="TSH-..." required></label>
@@ -28,7 +28,7 @@
 </section>
 
 <section class="admin-card studio-card">
-  <div class="studio-card-head"><div><span class="eyebrow">02 · PRICING</span><h2>Make the value clear.</h2></div></div>
+  <div class="studio-card-head"><div><span class="eyebrow">02 · PRICING</span><h2>Retail pricing</h2></div></div>
   <div class="form-grid three">
     <label class="field"><span>Retail price · INR</span><input type="number" step="0.01" name="base_price" value="{{ old('base_price',$product->base_price) }}" placeholder="0.00"></label>
     <label class="field"><span>GST rate · %</span><input type="number" step="0.01" name="gst_rate" value="{{ old('gst_rate',$product->gst_rate) }}" required></label>
@@ -38,7 +38,7 @@
 </section>
 
 <section class="admin-card studio-card">
-  <div class="studio-card-head"><div><span class="eyebrow">03 · VARIANT MATRIX</span><h2>Sizes, colours &amp; price points.</h2></div><button type="button" class="btn btn-light" data-add-variant>+ ADD VARIANT</button></div>
+  <div class="studio-card-head"><div><span class="eyebrow">03 · VARIANTS</span><h2>Purchasable options</h2></div><button type="button" class="btn btn-light" data-add-variant>+ ADD VARIANT</button></div>
   <div class="variant-editor" data-variant-editor>
     @php $variantRows=old('variants', $product->variants->map(fn($v)=>['id'=>$v->id,'sku'=>$v->sku,'name'=>$v->name,'size_name'=>$v->size_name,'color_name'=>$v->color_name,'color_hex'=>$v->color_hex,'price'=>$v->price,'compare_at_price'=>$v->compare_at_price,'is_active'=>$v->is_active])->values()->all()); @endphp
     @forelse($variantRows as $i=>$variant)
@@ -61,7 +61,7 @@
 </section>
 
 <section class="admin-card studio-card">
-  <div class="studio-card-head"><div><span class="eyebrow">04 · MERCHANDISING</span><h2>Place this piece.</h2></div></div>
+  <div class="studio-card-head"><div><span class="eyebrow">04 · COLLECTIONS & VISIBILITY</span><h2>Catalogue placement</h2></div></div>
   <div class="form-grid two">
     <div class="collection-picker"><span class="field-title">COLLECTIONS</span><div class="check-grid">@foreach($collections as $collection)<label class="check-card"><input type="checkbox" name="collections[]" value="{{ $collection->id }}" @checked($product->collections->contains($collection->id) || in_array($collection->id,old('collections',[])))><span><b>{{ $collection->name }}</b><small>{{ $collection->is_featured?'Featured collection':'Collection' }}</small></span></label>@endforeach</div></div>
     <div><span class="field-title">STORE VISIBILITY</span><label class="toggle big"><input type="checkbox" name="featured" value="1" @checked(old('featured',$product->featured))><span><b>Featured product</b><small>Allow this piece to appear in premium featured placements.</small></span></label></div>
@@ -69,7 +69,7 @@
 </section>
 
 <section class="admin-card studio-card">
-  <div class="studio-card-head"><div><span class="eyebrow">05 · STORY &amp; SERVICE</span><h2>Tell the customer what matters.</h2></div></div>
+  <div class="studio-card-head"><div><span class="eyebrow">05 · PRODUCT CONTENT</span><h2>Customer-facing content</h2></div></div>
   <label class="field"><span>Short description</span><textarea name="short_description" rows="3" placeholder="The one-paragraph product hook…">{{ old('short_description',$product->short_description) }}</textarea></label>
   <label class="field"><span>Description</span><textarea name="description" rows="7" placeholder="Detailed product story…">{{ old('description',$product->description) }}</textarea></label>
   <div class="form-grid two">
@@ -90,7 +90,7 @@
     <strong>₹{{ number_format((float)($product->base_price ?: 0),0) }}</strong>
     <small class="preview-note">Use real product media from Media Studio after saving the catalogue item.</small>
   </section>
-  <section class="studio-tip"><span>✦</span><div><b>CATALOGUE TIP</b><p>Keep one source of truth for master values and shared service language. Use variants for genuinely purchasable combinations.</p></div></section>
+  <section class="studio-tip"><span>✦</span><div><b>CATALOGUE TIP</b><p>Keep master values controlled, and keep shared customer messaging in Settings. Use variants only for purchasable options.</p></div></section>
 </aside>
 </section>
 @endsection
