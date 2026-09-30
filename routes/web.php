@@ -17,6 +17,8 @@ Route::get('/', [StorefrontController::class, 'home'])->name('home');
 Route::get('/shop', [StorefrontController::class, 'shop'])->name('shop');
 Route::get('/products/{slug}', [StorefrontController::class, 'product'])->name('product');
 Route::get('/pages/{slug}', [StorefrontController::class, 'page'])->name('page');
+Route::get('/wishlist', [StorefrontController::class, 'wishlist'])->name('wishlist');
+Route::post('/wishlist/toggle/{product}', [StorefrontController::class, 'toggleWishlist'])->name('wishlist.toggle');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
