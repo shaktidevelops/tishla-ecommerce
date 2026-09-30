@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ $title ?? config('app.name') }}</title>
 <meta name="description" content="{{ $description ?? 'Tishla by Purnika Sales — Indian fashion from Surat.' }}">
-<link rel="icon" href="{{ asset('favicon.svg') }}">
+<link rel="icon" type="image/png" href="{{ asset('tishla-favicon.png') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,10 +16,18 @@
 
 <header class="site-header">
   <div class="nav-wrap">
-    <button class="mobile-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false">☰</button>
-    <a class="brand-logo" href="{{ route('home') }}" aria-label="Tishla by Purnika Sales">
-      <img src="{{ asset('assets/tishla-logo.svg') }}" alt="Tishla by Purnika Sales">
-    </a>
+    <div class="nav-top">
+      <button class="mobile-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false">☰</button>
+      <div class="nav-spacer"></div>
+      <a class="brand-logo" href="{{ route('home') }}" aria-label="Tishla by Purnika Sales">
+        <img src="{{ asset('assets/tishla-logo.png') }}" alt="Tishla by Purnika Sales" onerror="this.onerror=null;this.src='{{ asset('assets/tishla-logo.svg') }}';">
+      </a>
+      <div class="nav-actions" aria-label="Store actions">
+        <a href="{{ route('shop') }}" aria-label="Search">⌕</a>
+        <a href="{{ route('cart') }}" aria-label="Shopping bag">Bag <span class="bag-count">{{ collect(session('cart',[]))->sum('quantity') }}</span></a>
+        @auth<a class="admin-link" href="{{ route('admin.dashboard') }}">ADMIN</a>@endauth
+      </div>
+    </div>
     <nav class="main-nav" data-nav>
       <a href="{{ route('shop') }}">SHOP</a>
       <a href="{{ route('shop',['department'=>'sarees']) }}">SAREES</a>
@@ -29,11 +37,6 @@
       <a href="{{ route('page','about') }}">ABOUT</a>
       <a href="{{ route('page','contact') }}">CONTACT</a>
     </nav>
-    <div class="nav-actions" aria-label="Store actions">
-      <a href="{{ route('shop') }}" aria-label="Search">⌕</a>
-      <a href="{{ route('cart') }}" aria-label="Shopping bag">Bag <span class="bag-count">{{ collect(session('cart',[]))->sum('quantity') }}</span></a>
-      @auth<a class="admin-link" href="{{ route('admin.dashboard') }}">ADMIN</a>@endauth
-    </div>
   </div>
 </header>
 
@@ -45,7 +48,7 @@
 <footer class="site-footer">
   <div class="footer-top">
     <div class="footer-brand">
-      <img src="{{ asset('assets/tishla-logo.svg') }}" alt="Tishla by Purnika Sales" class="footer-logo">
+      <img src="{{ asset('assets/tishla-logo.png') }}" alt="Tishla by Purnika Sales" class="footer-logo" onerror="this.onerror=null;this.src='{{ asset('assets/tishla-logo.svg') }}';">
       <p>Indian occasionwear and contemporary silhouettes, curated with a Surat point of view.</p>
       <div class="footer-socials" aria-label="Tishla social media">
         <a class="social-orbit" href="https://www.instagram.com/tishlawear/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @tishlawear">
