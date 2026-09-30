@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-<div class="admin-page-head"><div><span class="eyebrow">CATALOGUE MASTERS</span><h1>Product data standards</h1><p>Control the values used across catalogue entry, imports, filters and reporting.</p></div></div>
+<div class="admin-page-head"><div><span class="eyebrow">CATALOGUE MASTERS</span><h1>Catalogue masters</h1><p>Maintain controlled catalogue values used by products, imports and filters.</p></div></div>
 
 <div class="master-grid">
 @php
@@ -29,5 +29,5 @@ $masterSections=[
 </section>
 @endforeach
 </div>
-<section class="admin-card master-guidance"><span class="eyebrow">DATA DISCIPLINE</span><h2>Why masters matter.</h2><p>Controlled values prevent spelling drift and make catalogue imports, storefront filters and future reporting dependable.</p></section>
+<section class="admin-card master-guidance"><span class="eyebrow">STANDARDISATION</span><h2>Keep data consistent.</h2><p>Controlled values keep the catalogue consistent across entry, imports, filters and reporting.</p></section>
 @endsection
