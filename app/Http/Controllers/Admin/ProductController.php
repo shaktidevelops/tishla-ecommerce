@@ -45,6 +45,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $this->validated($request);
+        $data['featured']=$request->boolean('featured');
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
         $product = Product::create($data);
         $this->syncCollections($product,$request);
