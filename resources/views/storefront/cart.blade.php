@@ -12,7 +12,7 @@
           @foreach($cart as $key=>$item)
             <div class="cart-item">
               <a class="cart-image" href="{{ route('product',$item['slug']) }}"><img src="{{ $item['image_url'] }}" alt="{{ $item['name'] }}"></a>
-              <div class="cart-item-main"><div><span>{{ $item['sku'] }}</span><a href="{{ route('product',$item['slug']) }}"><strong>{{ $item['name'] }}</strong></a><small>{{ $item['variant_name'] ?: 'Standard option' }}</small></div><a class="remove-link" href="{{ route('cart.remove',$key) }}" onclick="event.preventDefault(); this.nextElementSibling.submit();">Remove</a><form method="post" action="{{ route('cart.remove',$key) }}" class="hidden-form">@csrf @method('DELETE')</form></div>
+              <div class="cart-item-main"><div><span>{{ $item['sku'] }}</span><a href="{{ route('product',$item['slug']) }}"><strong>{{ $item['name'] }}</strong></a><small>{{ $item['variant_name'] ?: 'Standard option' }}</small></div><button class="remove-link remove-button" type="submit" formmethod="post" formaction="{{ route('cart.remove',$key) }}" name="_method" value="DELETE">Remove</button></div>
               <div class="cart-item-controls"><label><span>QTY</span><input type="number" name="quantity[{{ $key }}]" value="{{ $item['quantity'] }}" min="1" max="20"></label><b>₹{{ number_format($item['price']*$item['quantity'],0) }}</b></div>
             </div>
           @endforeach
