@@ -12,7 +12,9 @@ use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -51,6 +53,8 @@ class DatabaseSeeder extends Seeder
                 ['name'=>$row[1],'sort_order'=>($i+1)*10,'is_active'=>true]
             );
         }
+
+        DB::table('inventory_locations')->updateOrInsert(['code'=>'MAIN'],['id'=>(string)(DB::table('inventory_locations')->where('code','MAIN')->value('id') ?: Str::uuid()),'name'=>'Tishla Main Store · Surat','address'=>'Surat, Gujarat, India','is_active'=>true,'updated_at'=>now(),'created_at'=>DB::table('inventory_locations')->where('code','MAIN')->value('created_at') ?: now()]);
 
         foreach (['New Arrivals'=>'new-arrivals','Bestsellers'=>'bestsellers','Wedding Edit'=>'wedding-edit','Festive Edit'=>'festive-edit','Party Edit'=>'party-edit','Ready to Ship'=>'ready-to-ship','Sale'=>'sale'] as $name=>$slug) {
             Collection::updateOrCreate(['slug'=>$slug],['name'=>$name,'sort_order'=>10,'is_active'=>true,'is_featured'=>in_array($slug,['new-arrivals','bestsellers','wedding-edit'],true)]);
