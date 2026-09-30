@@ -1,5 +1,9 @@
-@extends('layouts.admin')@section('content')
-<div class="admin-page-head"><div><span class="eyebrow">CATALOGUE STUDIO</span><h1>{{ $product->exists?'Edit product':'New product' }}</h1><p>Manage product identity, pricing, variants and merchandising from one workspace.</p></div><div class="head-actions"><a class="btn btn-light" href="{{ route('admin.products.index') }}">BACK TO CATALOGUE</a>@if($product->exists)<a class="btn btn-dark" href="{{ route('product',$product->slug) }}" target="_blank" rel="noopener">VIEW STOREFRONT ↗</a>@endif</div></div>
+@extends('layouts.admin')
+@section('content')
+<div class="admin-page-head">
+  <div><span class="eyebrow">CATALOGUE STUDIO</span><h1>{{ $product->exists?'Edit product':'New product' }}</h1><p>Manage product identity, pricing, variants and merchandising from one focused workspace.</p></div>
+  <div class="head-actions"><a class="btn btn-light" href="{{ route('admin.products.index') }}">BACK TO CATALOGUE</a>@if($product->exists)<a class="btn btn-dark" href="{{ route('product',$product->slug) }}" target="_blank" rel="noopener">VIEW STOREFRONT ↗</a>@endif</div>
+</div>
 
 @if($errors->any())<div class="admin-card error-box">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 
@@ -14,12 +18,13 @@
     <label class="field"><span>SKU</span><input name="sku" value="{{ old('sku',$product->sku) }}" placeholder="TSH-..." required></label>
     <label class="field"><span>Slug</span><input name="slug" value="{{ old('slug',$product->slug) }}" placeholder="auto-generated if blank"></label>
     <label class="field"><span>Department</span><select name="department_id"><option value="">Select department</option>@foreach($departments as $department)<option value="{{ $department->id }}" @selected(old('department_id',$product->department_id)==$department->id)>{{ $department->name }}</option>@endforeach</select></label>
-    <label class="field"><span>Product type</span><input name="product_type" value="{{ old('product_type',$product->product_type) }}" placeholder="Saree / Lehenga / Set"></label>
+    <label class="field"><span>Product type</span><select name="product_type"><option value="">Select product type</option>@foreach($productTypes as $type)<option value="{{ $type->name }}" @selected(old('product_type',$product->product_type)===$type->name)>{{ $type->name }}</option>@endforeach</select></label>
     <label class="field"><span>Fabric</span><input name="fabric" value="{{ old('fabric',$product->fabric) }}" placeholder="Organza / Silk / Georgette"></label>
-    <label class="field"><span>Shoot type</span><input name="shoot_type" value="{{ old('shoot_type',$product->shoot_type) }}" placeholder="Studio / Editorial / Flatlay"></label>
+    <label class="field"><span>Shoot type</span><select name="shoot_type"><option value="">Select shoot type</option>@foreach($shootTypes as $type)<option value="{{ $type->name }}" @selected(old('shoot_type',$product->shoot_type)===$type->name)>{{ $type->name }}</option>@endforeach</select></label>
     <label class="field"><span>Minimum order qty</span><input type="number" name="min_order_qty" value="{{ old('min_order_qty',$product->min_order_qty?:1) }}" min="1" required></label>
     <label class="field"><span>Status</span><select name="status">@foreach(['draft','active','archived'] as $s)<option value="{{ $s }}" @selected(old('status',$product->status)===$s)>{{ ucfirst($s) }}</option>@endforeach</select></label>
   </div>
+  <div class="master-inline-note"><span>MASTER DATA</span><p>Department, product type and shoot type are controlled centrally. Update the available values from <a href="{{ route('admin.masters.index') }}">Catalogue Masters</a>.</p></div>
 </section>
 
 <section class="admin-card studio-card">
@@ -29,7 +34,7 @@
     <label class="field"><span>GST rate · %</span><input type="number" step="0.01" name="gst_rate" value="{{ old('gst_rate',$product->gst_rate) }}" required></label>
     <label class="field"><span>Product badge</span><input name="product_badge" value="{{ old('product_badge',$product->product_badge) }}" placeholder="New / Bestseller / Exclusive"></label>
   </div>
-  <div class="price-preview"><span>DISPLAY PRICE</span><strong>₹{{ number_format((float)old('base_price',$product->base_price),0) }}</strong><small>Customer-facing product price before any future promotion rules.</small></div>
+  <div class="price-preview"><span>DISPLAY PRICE</span><strong>₹{{ number_format((float)old('base_price',$product->base_price),0) }}</strong><small>Customer-facing product price before future promotion rules.</small></div>
 </section>
 
 <section class="admin-card studio-card">
@@ -69,9 +74,8 @@
   <label class="field"><span>Description</span><textarea name="description" rows="7" placeholder="Detailed product story…">{{ old('description',$product->description) }}</textarea></label>
   <div class="form-grid two">
     <label class="field"><span>Fit notes</span><textarea name="fit_notes" rows="4">{{ old('fit_notes',$product->fit_notes) }}</textarea></label>
-    <label class="field"><span>Care instructions</span><textarea name="care_instructions" rows="4">{{ old('care_instructions',$product->care_instructions) }}</textarea></label>
+    <div class="common-copy-card"><span class="field-title">COMMON CARE + SHIPPING</span><strong>Managed centrally</strong><p>Care instructions and shipping notes are shared across the catalogue. Edit them once from Settings and every product inherits the latest version.</p><a href="{{ route('admin.settings.index') }}">OPEN COMMERCE SETTINGS →</a></div>
   </div>
-  <label class="field"><span>Shipping notes</span><textarea name="shipping_notes" rows="3">{{ old('shipping_notes',$product->shipping_notes) }}</textarea></label>
 </section>
 
 <div class="sticky-save"><span><b>{{ $product->exists?'EDITING':'CREATING' }}</b> · {{ $product->name ?: 'New Tishla piece' }}</span><button class="btn btn-dark" type="submit">SAVE CATALOGUE ITEM <span>↗</span></button></div>
@@ -86,7 +90,7 @@
     <strong>₹{{ number_format((float)($product->base_price ?: 0),0) }}</strong>
     <small class="preview-note">Use real product media from Media Studio after saving the catalogue item.</small>
   </section>
-  <section class="studio-tip"><span>✦</span><div><b>CATALOGUE TIP</b><p>Keep the primary product image clean and consistent. Use variants for genuinely purchasable options rather than creating duplicate products.</p></div></section>
+  <section class="studio-tip"><span>✦</span><div><b>CATALOGUE TIP</b><p>Keep one source of truth for master values and shared service language. Use variants for genuinely purchasable combinations.</p></div></section>
 </aside>
 </section>
 @endsection
