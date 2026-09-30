@@ -39,6 +39,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  document.querySelectorAll('[data-add-variant]').forEach(button => {
+    button.addEventListener('click', () => {
+      const editor = document.querySelector('[data-variant-editor]');
+      if (!editor) return;
+      const empty = editor.querySelector('[data-variant-empty]');
+      if (empty) empty.remove();
+      const index = editor.querySelectorAll('[data-variant-row]').length;
+      const row = document.createElement('div');
+      row.className = 'variant-row';
+      row.dataset.variantRow = '';
+      row.innerHTML = `
+        <label class="field compact"><span>Variant</span><input name="variants[${index}][name]" placeholder="M · Wine"></label>
+        <label class="field compact"><span>Size</span><input name="variants[${index}][size_name]" placeholder="M"></label>
+        <label class="field compact"><span>Colour</span><input name="variants[${index}][color_name]" placeholder="Wine"></label>
+        <label class="field compact"><span>HEX</span><input name="variants[${index}][color_hex]" placeholder="#6E102B"></label>
+        <label class="field compact"><span>SKU</span><input name="variants[${index}][sku]" placeholder="TSH-V-${index+1}"></label>
+        <label class="field compact"><span>Price</span><input type="number" step="0.01" name="variants[${index}][price]" placeholder="Optional"></label>
+        <label class="field compact"><span>Compare at</span><input type="number" step="0.01" name="variants[${index}][compare_at_price]" placeholder="Optional"></label>
+        <label class="toggle compact"><input type="checkbox" name="variants[${index}][is_active]" value="1" checked> Active</label>
+        <button type="button" class="variant-remove" data-remove-variant aria-label="Remove variant">×</button>`;
+      editor.appendChild(row);
+    });
+  });
+
+  document.addEventListener('click', event => {
+    const remove = event.target.closest('[data-remove-variant]');
+    if (!remove) return;
+    const row = remove.closest('[data-variant-row]');
+    row?.remove();
+    const editor = document.querySelector('[data-variant-editor]');
+    if (editor && !editor.querySelector('[data-variant-row]')) {
+      editor.innerHTML = '<div class="variant-empty" data-variant-empty><span>＋</span><strong>No variants yet.</strong><small>Add sizes, colours or other purchasable combinations.</small></div>';
+    }
+  });
+
   const adminToggle = document.querySelector('[data-admin-menu]');
   const adminSidebar = document.querySelector('[data-admin-sidebar]');
   if (adminToggle && adminSidebar) {
