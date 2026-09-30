@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Collection;
 use App\Models\Department;
+use App\Models\MasterValue;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\Setting;
@@ -14,28 +15,82 @@ class StorefrontController extends Controller
     public function home(Request $request)
     {
         $recentIds = $request->session()->get('recently_viewed', []);
+        $departments = Department::where('is_active', true)
+            ->withCount(['products as active_products_count' => fn ($query) => $query->where('status', 'active')])
+            ->orderBy('sort_order')
+            ->get();
+
+        $departmentHighlights = Product::with(['images', 'department'])
+            ->where('status', 'active')
+            ->whereIn('department_id', $departments->pluck('id'))
+            ->latest()
+            ->get()
+            ->groupBy('department_id')
+            ->map(fn ($items) => $items->first());
+
+        $featured = Product::with(['department', 'images', 'variants'])
+            ->where('status', 'active')
+            ->where('featured', true)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        $newArrivals = Product::with(['department', 'images', 'variants'])
+            ->where('status', 'active')
+            ->latest()
+            ->take(8)
+            ->get();
+
+        $collections = Collection::where('is_active', true)
+            ->whereIn('slug', ['new-arrivals', 'wedding-edit', 'festive-edit', 'party-edit', 'ready-to-ship'])
+            ->withCount(['products as active_products_count' => fn ($query) => $query->where('status', 'active')])
+            ->orderBy('sort_order')
+            ->take(5)
+            ->get();
+
+        $recentlyViewed = Product::with(['department', 'images', 'variants'])
+            ->where('status', 'active')
+            ->whereIn('id', $recentIds)
+            ->get()
+            ->sortBy(fn ($product) => array_search((string) $product->id, $recentIds, true) ?? 999)
+            ->values();
 
         return view('storefront.home', [
-            'featured' => Product::with(['department','images'])->where('status','active')->where('featured',true)->latest()->take(8)->get(),
-            'departments' => Department::where('is_active',true)->orderBy('sort_order')->get(),
-            'recentlyViewed' => Product::with(['department','images'])->where('status','active')->whereIn('id',$recentIds)->get()
-                ->sortBy(fn ($product) => array_search((string)$product->id, $recentIds, true) ?? 999)->values(),
+            'departments' => $departments,
+            'departmentHighlights' => $departmentHighlights,
+            'featured' => $featured,
+            'newArrivals' => $newArrivals,
+            'collections' => $collections,
+            'recentlyViewed' => $recentlyViewed,
         ]);
     }
 
     public function shop(Request $request)
     {
-        $sort = $request->string('sort','newest')->toString();
-        $query = Product::with(['department','images','variants'])->where('status','active')
+        $sort = $request->string('sort', 'newest')->toString();
+        $productTypeSlug = $request->string('product_type')->toString();
+        $productType = $productTypeSlug
+            ? MasterValue::where('master_type', 'product_type')->where('slug', $productTypeSlug)->where('is_active', true)->first()
+            : null;
+
+        $query = Product::with(['department', 'images', 'variants'])
+            ->where('status', 'active')
             ->when($request->filled('q'), function ($query) use ($request) {
                 $term = '%'.$request->string('q')->toString().'%';
-                $query->where(fn ($sub) => $sub->where('name','like',$term)->orWhere('sku','like',$term)->orWhere('fabric','like',$term)->orWhere('product_type','like',$term));
+                $query->where(fn ($sub) => $sub
+                    ->where('name', 'like', $term)
+                    ->orWhere('sku', 'like', $term)
+                    ->orWhere('fabric', 'like', $term)
+                    ->orWhere('product_type', 'like', $term));
             })
-            ->when($request->filled('department'), fn ($query) => $query->whereHas('department', fn ($dep) => $dep->where('slug',$request->string('department')->toString())))
-            ->when($request->filled('min_price'), fn ($query) => $query->where('base_price','>=',(float)$request->input('min_price')))
-            ->when($request->filled('max_price'), fn ($query) => $query->where('base_price','<=',(float)$request->input('max_price')));
+            ->when($request->filled('department'), fn ($query) => $query->whereHas('department', fn ($dep) => $dep->where('slug', $request->string('department')->toString())))
+            ->when($productType, fn ($query) => $query->where('product_type', $productType->name))
+            ->when($request->filled('min_price'), fn ($query) => $query->where('base_price', '>=', (float) $request->input('min_price')))
+            ->when($request->filled('max_price'), fn ($query) => $query->where('base_price', '<=', (float) $request->input('max_price')));
 
-        if ($request->filled('collection')) $query->whereHas('collections', fn ($collection) => $collection->where('slug',$request->string('collection')->toString()));
+        if ($request->filled('collection')) {
+            $query->whereHas('collections', fn ($collection) => $collection->where('slug', $request->string('collection')->toString()));
+        }
 
         match ($sort) {
             'price_asc' => $query->orderBy('base_price'),
@@ -49,12 +104,14 @@ class StorefrontController extends Controller
 
         return view('storefront.shop', [
             'products' => $products,
-            'departments' => Department::where('is_active',true)->orderBy('sort_order')->get(),
-            'collections' => Collection::where('is_active',true)->orderBy('sort_order')->orderBy('name')->get(),
-            'wishlist' => collect($request->session()->get('wishlist', []))->map(fn ($id) => (string)$id)->values(),
+            'departments' => Department::where('is_active', true)->orderBy('sort_order')->get(),
+            'productTypes' => MasterValue::where('master_type', 'product_type')->where('is_active', true)->orderBy('sort_order')->get(),
+            'collections' => Collection::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
+            'wishlist' => collect($request->session()->get('wishlist', []))->map(fn ($id) => (string) $id)->values(),
             'filters' => [
                 'q' => $request->string('q')->toString(),
                 'department' => $request->string('department')->toString(),
+                'product_type' => $productTypeSlug,
                 'collection' => $request->string('collection')->toString(),
                 'sort' => $sort,
                 'min_price' => $request->input('min_price'),
@@ -65,27 +122,44 @@ class StorefrontController extends Controller
 
     public function product(Request $request, string $slug)
     {
-        $product = Product::with(['department','variants','images','collections'])->where('slug',$slug)->where('status','active')->firstOrFail();
+        $product = Product::with(['department', 'variants', 'images', 'collections'])
+            ->where('slug', $slug)
+            ->where('status', 'active')
+            ->firstOrFail();
 
-        $recent = collect($request->session()->get('recently_viewed', []))->prepend((string)$product->id)->unique()->take(6)->values()->all();
-        $request->session()->put('recently_viewed',$recent);
+        $recent = collect($request->session()->get('recently_viewed', []))
+            ->prepend((string) $product->id)
+            ->unique()
+            ->take(6)
+            ->values()
+            ->all();
 
-        $recentProducts = Product::with(['department','images'])->where('status','active')->whereIn('id',array_slice($recent,1))
-            ->get()->sortBy(fn ($item) => array_search((string)$item->id,$recent,true) ?? 999)->values();
+        $request->session()->put('recently_viewed', $recent);
+
+        $recentProducts = Product::with(['department', 'images', 'variants'])
+            ->where('status', 'active')
+            ->whereIn('id', array_slice($recent, 1))
+            ->get()
+            ->sortBy(fn ($item) => array_search((string) $item->id, $recent, true) ?? 999)
+            ->values();
 
         return view('storefront.product', [
-            'product'=>$product,
-            'recentProducts'=>$recentProducts,
-            'commerceDefaults'=>Setting::where('key','commerce_defaults')->value('value') ?? [],
-            'wishlist'=>collect($request->session()->get('wishlist', []))->contains((string)$product->id),
+            'product' => $product,
+            'recentProducts' => $recentProducts,
+            'commerceDefaults' => Setting::where('key', 'commerce_defaults')->value('value') ?? [],
+            'wishlist' => collect($request->session()->get('wishlist', []))->contains((string) $product->id),
         ]);
     }
 
     public function wishlist(Request $request)
     {
-        $ids = collect($request->session()->get('wishlist', []))->map(fn ($id) => (string)$id)->unique()->values();
-        $products = Product::with(['department','images'])->where('status','active')->whereIn('id',$ids)->get()
-            ->sortBy(fn ($item) => $ids->search((string)$item->id))->values();
+        $ids = collect($request->session()->get('wishlist', []))->map(fn ($id) => (string) $id)->unique()->values();
+        $products = Product::with(['department', 'images', 'variants'])
+            ->where('status', 'active')
+            ->whereIn('id', $ids)
+            ->get()
+            ->sortBy(fn ($item) => $ids->search((string) $item->id))
+            ->values();
 
         return view('storefront.wishlist', compact('products'));
     }
@@ -93,18 +167,23 @@ class StorefrontController extends Controller
     public function toggleWishlist(Request $request, Product $product)
     {
         abort_unless($product->status === 'active', 404);
-        $ids = collect($request->session()->get('wishlist', []))->map(fn ($id) => (string)$id)->values();
-        $id = (string)$product->id;
+
+        $ids = collect($request->session()->get('wishlist', []))->map(fn ($id) => (string) $id)->values();
+        $id = (string) $product->id;
         $saved = $ids->contains($id);
-        $ids = $saved ? $ids->reject(fn ($item) => $item === $id)->values() : $ids->prepend($id)->unique()->values()->take(50);
-        $request->session()->put('wishlist',$ids->all());
+        $ids = $saved
+            ? $ids->reject(fn ($item) => $item === $id)->values()
+            : $ids->prepend($id)->unique()->values()->take(50);
+
+        $request->session()->put('wishlist', $ids->all());
 
         return back()->with('success', $saved ? 'Removed from wishlist.' : 'Saved to wishlist.');
     }
 
     public function page(string $slug)
     {
-        $page = Page::where('slug',$slug)->where('status','published')->firstOrFail();
+        $page = Page::where('slug', $slug)->where('status', 'published')->firstOrFail();
+
         return view('storefront.page', compact('page'));
     }
 }

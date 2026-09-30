@@ -8,91 +8,99 @@
   $enquiry = rawurlencode("Hello Tishla by Purnika Sales, I am interested in: {$product->name} (SKU: {$product->sku}). Please share availability/details.");
   $careInstructions = $commerceDefaults['care_instructions'] ?? 'Care information is shared by Tishla through the product care guidance.';
   $shippingNotes = $commerceDefaults['shipping_notes'] ?? 'Delivery timelines vary by destination, availability and courier service.';
+  $selectedVariant = $product->variants->first();
+  $startPrice = (float)($selectedVariant?->price ?: $product->base_price);
 @endphp
 
-<section class="product-breadcrumb">
-  <a href="{{ route('home') }}">HOME</a><span> / </span><a href="{{ route('shop') }}">SHOP</a><span> / </span><span>{{ strtoupper($product->department?->name ?? 'COLLECTION') }}</span>
-</section>
+<section class="product-topbar"><a href="{{ route('shop') }}">SHOP</a><span> / </span><a href="{{ route('shop',['department'=>$product->department?->slug]) }}">{{ strtoupper($product->department?->name ?? 'COLLECTION') }}</a><span> / </span><span>{{ $product->name }}</span></section>
 
-<section class="product-detail premium-product">
-  <div class="product-gallery">
-    <div class="product-large product-stage" data-product-stage>
-      @if($primary)
-        <img src="{{ $primary->public_url }}" alt="{{ $primary->alt_text ?: $product->name }}" data-main-image>
-      @else
-        <div class="image-fallback"><span>T</span></div>
-      @endif
-      <div class="product-stage-label">TISHLA / {{ $product->sku }}</div>
+<section class="product-layout">
+  <div class="product-media-column">
+    <div class="product-main-image">
+      @if($primary)<img src="{{ $primary->public_url }}" alt="{{ $primary->alt_text ?: $product->name }}" data-main-image>@else<div class="image-fallback"><span>T</span></div>@endif
+      <span class="product-image-stamp">TISHLA<br><small>{{ $product->sku }}</small></span>
     </div>
-    @if($gallery->count() > 1)
-      <div class="product-thumbs" aria-label="Product gallery">
+    @if($gallery->count()>1)
+      <div class="product-thumbs">
         @foreach($gallery as $image)
-          <button type="button" class="product-thumb {{ $loop->first ? 'active' : '' }}" data-product-thumb data-image="{{ $image->public_url }}" data-alt="{{ $image->alt_text ?: $product->name }}" aria-label="View image {{ $loop->iteration }}">
-            <img src="{{ $image->public_url }}" alt="" loading="lazy">
-          </button>
+          <button type="button" class="product-thumb {{ $loop->first?'active':'' }}" data-product-thumb data-image="{{ $image->public_url }}" data-alt="{{ $image->alt_text ?: $product->name }}"><img src="{{ $image->public_url }}" alt="" loading="lazy"></button>
         @endforeach
       </div>
     @endif
   </div>
 
   <div class="product-info">
-    <div class="product-meta-line"><span class="eyebrow">{{ $product->department?->name }}</span>@if($product->product_badge)<span class="product-detail-badge">{{ $product->product_badge }}</span>@endif</div>
+    <div class="product-info-kicker"><span class="eyebrow">{{ $product->department?->name }}</span>@if($product->product_badge)<span class="detail-badge">{{ $product->product_badge }}</span>@endif</div>
     <h1>{{ $product->name }}</h1>
-    <div class="product-sku">SKU · {{ $product->sku }}</div>
-    <div class="price">₹{{ number_format((float)$product->base_price,0) }} <span>INCLUSIVE OF APPLICABLE TAX</span></div>
-    <p class="product-lead">{{ $product->short_description }}</p>
+    <div class="product-sku-row"><span>SKU · {{ $product->sku }}</span><span>{{ $product->product_type ?: 'TISHLA EDIT' }}</span></div>
 
-    <div class="trust-pills">
-      <span>✦ PREMIUM CURATION</span><span>✦ INDIAWIDE DELIVERY</span><span>✦ WHATSAPP ASSISTANCE</span>
+    <div class="product-price" data-product-price="₹{{ number_format($startPrice,0) }}" data-price-value="{{ $startPrice }}">
+      ₹{{ number_format($startPrice,0) }}
+      @if($selectedVariant && $selectedVariant->compare_at_price && (float)$selectedVariant->compare_at_price>$startPrice)<del data-compare-price>₹{{ number_format((float)$selectedVariant->compare_at_price,0) }}</del>@else<del data-compare-price hidden></del>@endif
+      <small>INCLUSIVE OF APPLICABLE TAX</small>
     </div>
 
-    <div class="divider"></div>
+    @if($product->short_description)<p class="product-intro-copy">{{ $product->short_description }}</p>@endif
 
-    <form method="post" action="{{ route('cart.add',$product) }}" class="product-buy-form">
+    <div class="trust-row">
+      <span><i>✦</i> Curated in Surat</span>
+      <span><i>✦</i> Indiawide delivery</span>
+      <span><i>✦</i> COD available</span>
+    </div>
+
+    <div class="product-divider"></div>
+
+    <form method="post" action="{{ route('cart.add',$product) }}" class="buy-box">
       @csrf
       @if($product->variants->count())
-        <div class="field">
-          <div class="field-label-row"><span>SELECT VARIANT</span><small>Choose your preferred option</small></div>
-          <div class="variant-grid">
+        <div class="variant-block">
+          <div class="field-label-row"><strong>SELECT YOUR OPTION</strong><span>Choose one to continue</span></div>
+          <div class="variant-list">
             @foreach($product->variants as $variant)
-              <label class="variant-choice">
-                <input type="radio" name="variant_id" value="{{ $variant->id }}" {{ $loop->first ? 'checked' : '' }}>
-                <span><strong>{{ $variant->name }}</strong>@if($variant->size_name)<small>{{ $variant->size_name }}</small>@endif @if($variant->color_name)<small>{{ $variant->color_name }}</small>@endif <b>₹{{ number_format((float)($variant->price ?: $product->base_price),0) }}</b></span>
+              @php $variantPrice=(float)($variant->price ?: $product->base_price); $variantCompare=(float)($variant->compare_at_price ?: 0); @endphp
+              <label class="variant-option">
+                <input type="radio" name="variant_id" value="{{ $variant->id }}" data-price="{{ $variantPrice }}" data-compare="{{ $variantCompare }}" {{ $loop->first?'checked':'' }}>
+                <span class="variant-option-copy">
+                  @if($variant->color_hex)<i class="color-dot" style="--variant-color:{{ $variant->color_hex }}"></i>@endif
+                  <strong>{{ $variant->name }}</strong>
+                  @if($variant->size_name)<small>{{ $variant->size_name }}</small>@endif
+                  @if($variant->color_name)<small>{{ $variant->color_name }}</small>@endif
+                </span>
+                <b>₹{{ number_format($variantPrice,0) }}</b>
               </label>
             @endforeach
           </div>
         </div>
       @endif
-      <div class="buy-row">
-        <label class="quantity-field"><span>QTY</span><input type="number" name="quantity" value="1" min="1" max="20" aria-label="Quantity"></label>
-        <button class="btn btn-dark buy-button" type="submit">ADD TO BAG <span>↗</span></button>
-      </div>
+
+      <div class="quantity-row"><label class="quantity-field"><span>QTY</span><input type="number" name="quantity" value="1" min="1" max="20" aria-label="Quantity"></label><button class="btn btn-dark buy-button" type="submit">ADD TO BAG <span>↗</span></button></div>
     </form>
 
-    <a class="whatsapp-enquiry" href="https://wa.me/{{ $whatsapp }}?text={{ $enquiry }}" target="_blank" rel="noopener noreferrer">
-      <span class="whatsapp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.1 3.9A9.9 9.9 0 0 0 4.4 16.1L3 21l5-1.3A9.9 9.9 0 1 0 20.1 3.9ZM12 19.1c-1.5 0-2.9-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A7.9 7.9 0 1 1 12 19.1Zm4.4-5.8c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.3-.6.8-.7 1-.1.1-.3.2-.5.1-1.8-.9-3-1.6-4.1-3.7-.3-.5.3-.5.7-1.3.1-.2.1-.4 0-.5l-.4-1c-.1-.3-.3-.3-.5-.3h-.4c-.1 0-.4.1-.6.3-.6.6-.8 1.4-.8 2.2 0 .5.1 1 .3 1.4 0 .1 1.2 2.7 4.1 4.2 2.4 1.2 2.4.8 2.8.8.6 0 1.9-.8 2.1-1.6.1-.4.1-.7 0-.8Z" fill="currentColor"/></svg></span>
-      <span><strong>Ask on WhatsApp</strong><small>Personal assistance for this piece</small></span><b>↗</b>
-    </a>
+    <a class="whatsapp-enquiry" href="https://wa.me/{{ $whatsapp }}?text={{ $enquiry }}" target="_blank" rel="noopener noreferrer"><span class="wa-dot">◌</span><span><strong>Ask Tishla about this piece</strong><small>Availability · colour · sizing · styling help</small></span><b>↗</b></a>
 
-    <div class="accordions">
-      @if($product->description)<details open><summary>DETAILS <span>+</span></summary><p>{{ $product->description }}</p></details>@endif
-      @if($product->fabric)<details><summary>FABRIC &amp; CRAFT <span>+</span></summary><p>{{ $product->fabric }}</p></details>@endif
-      @if($product->fit_notes)<details><summary>FIT NOTES <span>+</span></summary><p>{{ $product->fit_notes }}</p></details>@endif
-      <details><summary>CARE <span>+</span></summary><p>{{ $careInstructions }}</p></details>
-      <details><summary>DELIVERY <span>+</span></summary><p>{{ $shippingNotes }}</p></details>
+    <div class="product-accordions">
+      @if($product->description)<details open><summary>DETAILS <span>＋</span></summary><p>{{ $product->description }}</p></details>@endif
+      @if($product->fabric)<details><summary>FABRIC &amp; CRAFT <span>＋</span></summary><p>{{ $product->fabric }}</p></details>@endif
+      @if($product->fit_notes)<details><summary>FIT NOTES <span>＋</span></summary><p>{{ $product->fit_notes }}</p></details>@endif
+      <details><summary>CARE <span>＋</span></summary><p>{{ $careInstructions }}</p></details>
+      <details><summary>DELIVERY <span>＋</span></summary><p>{{ $shippingNotes }}</p></details>
     </div>
   </div>
 </section>
 
+<section class="product-benefits">
+  <div><span>01</span><strong>Need a second opinion?</strong><p>Send the product to us on WhatsApp and ask anything before ordering.</p></div>
+  <div><span>02</span><strong>Ordering for an occasion?</strong><p>Share the event date and we'll help with your selection where possible.</p></div>
+  <div><span>03</span><strong>Want to see more?</strong><p>Browse your recently viewed pieces and keep building your edit.</p></div>
+</section>
+
 @if($recentProducts->count())
-<section class="section recently-viewed">
-  <div class="section-head"><div><span class="eyebrow">KEEP EXPLORING</span><h2>Recently viewed.</h2></div><a class="text-link" href="{{ route('shop') }}">View collection <span>↗</span></a></div>
-  <div class="product-grid">
+<section class="home-section related-section">
+  <div class="section-heading-row"><div><span class="eyebrow">KEEP EXPLORING</span><h2>Recently viewed.</h2></div><a class="text-link" href="{{ route('shop') }}">SHOP COLLECTION <span>↗</span></a></div>
+  <div class="product-rail">
     @foreach($recentProducts as $recent)
-      <a class="product-card reveal" href="{{ route('product',$recent->slug) }}">
-        <div class="product-image">@if($recent->images->first())<img src="{{ $recent->images->first()->public_url }}" alt="{{ $recent->images->first()->alt_text ?: $recent->name }}" loading="lazy">@else<div class="image-fallback"><span>T</span></div>@endif</div>
-        <div class="product-meta"><span>{{ $recent->department?->name }}</span><strong>{{ $recent->name }}</strong><b>₹{{ number_format((float)$recent->base_price,0) }}</b></div>
-      </a>
+      @php $image=$recent->images->first(); $variant=$recent->variants->first(); @endphp
+      <a class="rail-card reveal" href="{{ route('product',$recent->slug) }}"><div class="rail-image">@if($image)<img src="{{ $image->public_url }}" alt="{{ $image->alt_text ?: $recent->name }}" loading="lazy">@else<div class="image-fallback"><span>T</span></div>@endif</div><div class="rail-meta"><span>{{ $recent->department?->name }}</span><strong>{{ $recent->name }}</strong><b>₹{{ number_format((float)($variant?->price ?: $recent->base_price),0) }}</b></div></a>
     @endforeach
   </div>
 </section>
