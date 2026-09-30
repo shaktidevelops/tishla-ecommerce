@@ -1,35 +1,24 @@
 @extends('layouts.storefront')
 
 @section('content')
-<section class="hero">
-  <div class="hero-copy reveal">
-    <div class="hero-kicker"><span class="eyebrow">THE TISHLA EDIT</span><span class="hero-line"></span><span>SS26</span></div>
-    <h1>Indian craft.<br><em>Contemporary spirit.</em></h1>
-    <p>Statement sarees, celebration-ready silhouettes and polished everyday pieces — curated from Surat for the way you dress now.</p>
+<section class="brand-hero">
+  <picture>
+    <img src="{{ asset('assets/tishla-banner.png') }}" alt="Tishla by Purnika Sales — Indian womenswear" fetchpriority="high">
+  </picture>
+  <div class="brand-hero-shade"></div>
+  <div class="brand-hero-copy">
+    <span class="eyebrow">TISHLA BY PURNIKA SALES · SURAT</span>
+    <h1>Elegance<br><em>that speaks.</em></h1>
+    <p>Indian occasionwear and contemporary silhouettes, curated for modern celebrations.</p>
     <div class="hero-actions">
-      <a class="btn btn-dark" href="{{ route('shop') }}">SHOP THE EDIT <span>↗</span></a>
-      <a class="btn btn-light" href="{{ route('shop',['department'=>'sarees']) }}">EXPLORE SAREES</a>
-    </div>
-    <div class="hero-signature">
-      <span>Designed in Surat</span>
-      <span>Made to be remembered</span>
+      <a class="btn btn-dark" href="{{ route('shop') }}">SHOP THE COLLECTION <span>↗</span></a>
+      <a class="btn btn-light hero-light-btn" href="{{ route('shop',['department'=>'sarees']) }}">EXPLORE SAREES</a>
     </div>
   </div>
-
-  <div class="hero-art reveal">
-    @if($featured->first()?->images->first())
-      <img src="{{ $featured->first()->images->first()->public_url }}" alt="{{ $featured->first()->name }}">
-    @else
-      <div class="hero-art-fallback"><span>T</span></div>
-    @endif
-    <div class="hero-frame"></div>
-    <div class="hero-label hero-label-top">TISHLA / 01</div>
-    <div class="hero-label hero-label-bottom">SURAT · INDIA</div>
-    <div class="hero-stamp"><span>T</span><small>PURNIKA SALES</small></div>
-  </div>
+  <div class="brand-hero-note">NEW EDIT · 2026</div>
 </section>
 
-<div class="marquee"><div>NEW ARRIVALS <i>✦</i> FESTIVE EDIT <i>✦</i> WEDDING EDIT <i>✦</i> READY TO SHIP <i>✦</i> NEW ARRIVALS <i>✦</i> FESTIVE EDIT <i>✦</i></div></div>
+<div class="marquee"><div>NEW ARRIVALS <i>✦</i> FESTIVE EDIT <i>✦</i> WEDDING EDIT <i>✦</i> READY TO SHIP <i>✦</i> WHATSAPP SHOPPING <i>✦</i> NEW ARRIVALS <i>✦</i> FESTIVE EDIT <i>✦</i></div></div>
 
 <section class="section section-departments">
   <div class="section-head reveal">
@@ -92,6 +81,17 @@
         </div>
       </a>
     @endforeach
+  </div>
+</section>
+
+<section class="community-feature">
+  <div class="community-image reveal"><img src="{{ asset('assets/tishla-community.png') }}" alt="Join the Tishla WhatsApp community" loading="lazy"></div>
+  <div class="community-copy reveal">
+    <span class="eyebrow">STAY CLOSE TO TISHLA</span>
+    <h2>New sarees.<br><em>New stories.</em></h2>
+    <p>Receive daily saree and dress updates, new arrivals, offers and collection drops through our WhatsApp community.</p>
+    <a class="btn btn-dark" href="https://wa.me/{{ env('TISHLA_WHATSAPP','919574716712') }}" target="_blank" rel="noopener noreferrer">CHAT ON WHATSAPP <span>↗</span></a>
+    <small>Personal assistance · Product enquiries · New arrivals</small>
   </div>
 </section>
 
