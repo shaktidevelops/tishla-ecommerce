@@ -158,9 +158,9 @@ class ProductController extends Controller
         if (!$headers) return back()->with('error','The CSV is empty.');
         $headers = array_map(fn($v)=>Str::of((string)$v)->trim()->lower()->replace(' ','_')->toString(),$headers);
         $required = array_diff($this->csvHeaders(),$headers);
-        if ($required) {
+        if (array_diff($required, $headers)) {
             fclose($handle);
-            return back()->with('error','CSV columns are missing: '.implode(', ',$required));
+            return back()->with('error','CSV must contain these columns: '.implode(', ',$required));
         }
 
         $success=0; $errors=[]; $seen=[];
@@ -269,10 +269,10 @@ class ProductController extends Controller
             'name'=>['required','string','max:200'],
             'short_description'=>['nullable','string','max:500'],
             'description'=>['nullable','string'],
-            'department_id'=>['nullable','uuid'],
+            'department_id'=>['nullable','uuid','exists:departments,id'],
             'fabric'=>['nullable','string','max:120'],
-            'product_type'=>['nullable','string','max:80'],
-            'shoot_type'=>['nullable','string','max:80'],
+            'product_type'=>['nullable','string','max:80',function($attribute,$value,$fail){ if($value!==null && $value!=='' && !MasterValue::where('master_type','product_type')->where('is_active',true)->where('name',$value)->exists()) $fail('Select a valid Product Type master value.'); }],
+            'shoot_type'=>['nullable','string','max:80',function($attribute,$value,$fail){ if($value!==null && $value!=='' && !MasterValue::where('master_type','shoot_type')->where('is_active',true)->where('name',$value)->exists()) $fail('Select a valid Shoot Type master value.'); }],
             'base_price'=>['nullable','numeric','min:0'],
             'gst_rate'=>['required','numeric','min:0','max:100'],
             'status'=>['required','in:draft,active,archived'],
