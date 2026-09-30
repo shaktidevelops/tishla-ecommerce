@@ -93,4 +93,27 @@
     </div>
   </div>
 </section>
+
+@if($recentProducts->count())
+<section class="section recently-viewed">
+  <div class="section-head">
+    <div><span class="eyebrow">KEEP EXPLORING</span><h2>Recently viewed.</h2></div>
+    <a class="text-link" href="{{ route('shop') }}">View collection <span>↗</span></a>
+  </div>
+  <div class="product-grid">
+    @foreach($recentProducts as $recent)
+      <a class="product-card reveal" href="{{ route('product',$recent->slug) }}">
+        <div class="product-image">
+          @if($recent->images->first())
+            <img src="{{ $recent->images->first()->public_url }}" alt="{{ $recent->images->first()->alt_text ?: $recent->name }}" loading="lazy">
+          @else
+            <div class="image-fallback"><span>T</span></div>
+          @endif
+        </div>
+        <div class="product-meta"><span>{{ $recent->department?->name }}</span><strong>{{ $recent->name }}</strong><b>₹{{ number_format((float)$recent->base_price,0) }}</b></div>
+      </a>
+    @endforeach
+  </div>
+</section>
+@endif
 @endsection
