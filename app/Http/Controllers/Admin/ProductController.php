@@ -179,24 +179,36 @@ class ProductController extends Controller
                     if ($mode === 'update' && !$existing) throw new \RuntimeException('SKU does not exist.');
 
                     $product = $existing ?: new Product();
-                    $product->sku = $sku;
-                    $product->slug = trim((string)($row['slug'] ?? '')) ?: Str::slug((string)$row['name']);
-                    $product->name = trim((string)($row['name'] ?? ''));
-                    if ($product->name === '') throw new \RuntimeException('Product name is required.');
+                    $name = trim((string)($row['name'] ?? ''));
+                    if ($mode === 'create' && $name === '') throw new \RuntimeException('Product name is required.');
+                    if ($name !== '') $product->name = $name;
+                    if ($mode === 'create' && !$product->name) throw new \RuntimeException('Product name is required.');
 
-                    $dept = $this->findDepartment($row['department'] ?? '');
-                    $product->department_id = $dept?->id;
-                    $product->product_type = $this->findMasterName('product_type',$row['product_type'] ?? '');
-                    $product->fabric = $this->nullableString($row['fabric'] ?? null);
-                    $product->shoot_type = $this->findMasterName('shoot_type',$row['shoot_type'] ?? '');
-                    $product->base_price = $this->nullableNumber($row['base_price'] ?? null);
-                    $product->gst_rate = $this->nullableNumber($row['gst_rate'] ?? null) ?? (float)env('TISHLA_GST_RATE',5);
-                    $product->status = in_array(($row['status'] ?? 'draft'),['draft','active','archived'],true) ? ($row['status'] ?? 'draft') : 'draft';
-                    $product->featured = in_array(strtolower(trim((string)($row['featured'] ?? '0'))),['1','true','yes'],true);
-                    $product->min_order_qty = max(1,(int)($row['min_order_qty'] ?? 1));
-                    $product->product_badge = $this->nullableString($row['product_badge'] ?? null);
-                    $product->fit_notes = $this->nullableString($row['fit_notes'] ?? null);
-                    $product->save();
+                    if ($mode === 'create' || array_key_exists('slug',$row)) {
+                        $slug = trim((string)($row['slug'] ?? ''));
+                        if ($slug !== '') $product->slug = $slug;
+                        elseif (!$product->slug) $product->slug = Str::slug($product->name);
+                    }
+                    $product->sku = $sku;
+
+                    if (array_key_exists('department',$row)) $product->department_id = $this->findDepartment($row['department'] ?? '')?->id;
+                    if (array_key_exists('product_type',$row) && trim((string)$row['product_type'])!=='') $product->product_type = $this->findMasterName('product_type',$row['product_type']);
+                    if (array_key_exists('fabric',$row) && trim((string)$row['fabric'])!=='') $product->fabric = $this->nullableString($row['fabric']);
+                    if (array_key_exists('shoot_type',$row) && trim((string)$row['shoot_type'])!=='') $product->shoot_type = $this->findMasterName('shoot_type',$row['shoot_type']);
+                    if (array_key_exists('base_price',$row) && trim((string)$row['base_price'])!=='') $product->base_price = $this->nullableNumber($row['base_price']);
+                    if (array_key_exists('gst_rate',$row) && trim((string)$row['gst_rate'])!=='') $product->gst_rate = $this->nullableNumber($row['gst_rate']);
+                    elseif (!$product->gst_rate) $product->gst_rate = (float)env('TISHLA_GST_RATE',5);
+                    if (array_key_exists('status',$row) && trim((string)$row['status'])!=='') {
+                        $status=trim((string)$row['status']);
+                        if (!in_array($status,['draft','active','archived'],true)) throw new \RuntimeException('Invalid status.');
+                        $product->status=$status;
+                    } elseif (!$product->status) $product->status='draft';
+                    if (array_key_exists('featured',$row) && trim((string)$row['featured'])!=='') $product->featured=in_array(strtolower(trim((string)$row['featured'])),['1','true','yes'],true);
+                    if (array_key_exists('min_order_qty',$row) && trim((string)$row['min_order_qty'])!=='') $product->min_order_qty=max(1,(int)$row['min_order_qty']);
+                    elseif (!$product->min_order_qty) $product->min_order_qty=1;
+                    if (array_key_exists('product_badge',$row) && trim((string)$row['product_badge'])!=='') $product->product_badge=$this->nullableString($row['product_badge']);
+                    if (array_key_exists('fit_notes',$row) && trim((string)$row['fit_notes'])!=='') $product->fit_notes=$this->nullableString($row['fit_notes']);
+
 
                     $variantSku = trim((string)($row['variant_sku'] ?? ''));
                     $variantName = trim((string)($row['variant_name'] ?? ''));
